@@ -27,21 +27,21 @@ namespace BibliotecaSoares
         {
             try
             {
-                // 1. Busca as informações de forma assíncrona no banco de dados
-                var listaAlunos = await _usuarioRepository.ObterTodosAsync();
-                var listaLivros = await _livroRepository.ListarTodosAsync();
+                // 1. Busca os alunos e JÁ ORDENA no C# (Seguro)
+                var alunos = await _usuarioRepository.ObterTodosAsync();
+                cmbUsuarios.DataSource = alunos.OrderBy(u => u.Nome).ToList();
 
-                // 2. Configura o ComboBox de Alunos
-                cmbUsuarios.DataSource = null; // Limpa resíduos anteriores
-                cmbUsuarios.DataSource = listaAlunos;
-                cmbUsuarios.DisplayMember = "NomeComTurma"; // Propriedade que junta Nome e Turma
-                cmbUsuarios.ValueMember = "Id";             // O ID que será guardado nos bastidores
+                // O que o bibliotecário vê na tela:
+                cmbUsuarios.DisplayMember = "Nome";
+                // O ID secreto que o sistema vai guardar:
+                cmbUsuarios.ValueMember = "Id";
 
-                // 3. Configura o ComboBox de Livros
-                cmbLivros.DataSource = null;
-                cmbLivros.DataSource = listaLivros;
-                cmbLivros.DisplayMember = "Titulo";         // Exibe o título do livro para seleção
-                cmbLivros.ValueMember = "Id";               // Guarda o ID do livro
+                // 2. Faz a mesma coisa para os Livros
+                var livros = await _livroRepository.ListarTodosAsync();
+                cmbLivros.DataSource = livros.OrderBy(l => l.Titulo).ToList();
+
+                cmbLivros.DisplayMember = "Titulo"; // Pode ser TituloLivro dependendo da sua classe
+                cmbLivros.ValueMember = "Id";
 
                 // Opcional: Iniciar com os campos limpos (sem nenhum selecionado automaticamente)
                 cmbUsuarios.SelectedIndex = -1;

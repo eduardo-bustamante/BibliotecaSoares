@@ -49,6 +49,9 @@ namespace BibliotecaSoares.Repositories
                     livroOriginal.Autor = livro.Autor;
                     livroOriginal.Ano = livro.Ano; // Se você usa esse campo
                     livroOriginal.QuantidadeTotal = livro.QuantidadeTotal;
+                    livroOriginal.Editora = livro.Editora; // Se você usa esse campo
+                    livroOriginal.Genero = livro.Genero; // Se você usa esse campo
+                    livroOriginal.Idioma = livro.Idioma; // Se você usa esse campo
 
                     // 5. Salva no banco 
                     // O EF Core é inteligente e vai atualizar apenas os campos que foram modificados

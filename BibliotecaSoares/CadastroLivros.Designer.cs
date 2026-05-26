@@ -28,12 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
-            DataGridViewCellStyle dataGridViewCellStyle5 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle6 = new DataGridViewCellStyle();
+            components = new System.ComponentModel.Container();
+            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CadastroLivros));
-            DataGridViewCellStyle dataGridViewCellStyle7 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle8 = new DataGridViewCellStyle();
-            dgv_livros = new DataGridView();
+            DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
+            dgvLivros = new DataGridView();
             label1 = new Label();
             panel1 = new Panel();
             nud_quantidade = new NumericUpDown();
@@ -70,7 +71,13 @@
             lblTotalTitulos = new Label();
             label11 = new Label();
             label10 = new Label();
-            ((System.ComponentModel.ISupportInitialize)dgv_livros).BeginInit();
+            txtBuscarEmprestimos = new TextBox();
+            label12 = new Label();
+            menuLivros = new ContextMenuStrip(components);
+            editarToolStripMenuItem = new ToolStripMenuItem();
+            excluirToolStripMenuItem = new ToolStripMenuItem();
+            visualizarToolStripMenuItem = new ToolStripMenuItem();
+            ((System.ComponentModel.ISupportInitialize)dgvLivros).BeginInit();
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)nud_quantidade).BeginInit();
             ((System.ComponentModel.ISupportInitialize)nud_ano).BeginInit();
@@ -78,37 +85,39 @@
             ((System.ComponentModel.ISupportInitialize)dgvEmprestimosAtivos).BeginInit();
             groupBox1.SuspendLayout();
             groupBox2.SuspendLayout();
+            menuLivros.SuspendLayout();
             SuspendLayout();
             // 
-            // dgv_livros
+            // dgvLivros
             // 
-            dgv_livros.AllowUserToDeleteRows = false;
-            dgv_livros.AllowUserToOrderColumns = true;
-            dataGridViewCellStyle5.Font = new Font("JetBrains Mono NL", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            dgv_livros.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle5;
-            dgv_livros.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            dgv_livros.BackgroundColor = Color.WhiteSmoke;
-            dgv_livros.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle6.BackColor = SystemColors.Window;
-            dataGridViewCellStyle6.Font = new Font("JetBrains Mono", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            dataGridViewCellStyle6.ForeColor = SystemColors.ControlText;
-            dataGridViewCellStyle6.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle6.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle6.WrapMode = DataGridViewTriState.False;
-            dgv_livros.DefaultCellStyle = dataGridViewCellStyle6;
-            dgv_livros.GridColor = SystemColors.ScrollBar;
-            dgv_livros.Location = new Point(437, 66);
-            dgv_livros.Margin = new Padding(3, 2, 3, 2);
-            dgv_livros.Name = "dgv_livros";
-            dgv_livros.ReadOnly = true;
-            dgv_livros.RowHeadersWidth = 51;
-            dgv_livros.RowTemplate.Height = 30;
-            dgv_livros.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgv_livros.Size = new Size(732, 366);
-            dgv_livros.TabIndex = 0;
-            dgv_livros.CellDoubleClick += dgv_livros_CellDoubleClick;
-            dgv_livros.ColumnHeaderMouseClick += dgv_livros_ColumnHeaderMouseClick;
+            dgvLivros.AllowUserToDeleteRows = false;
+            dgvLivros.AllowUserToOrderColumns = true;
+            dataGridViewCellStyle1.Font = new Font("JetBrains Mono NL", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            dgvLivros.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            dgvLivros.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            dgvLivros.BackgroundColor = Color.WhiteSmoke;
+            dgvLivros.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = SystemColors.Window;
+            dataGridViewCellStyle2.Font = new Font("JetBrains Mono", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            dataGridViewCellStyle2.ForeColor = SystemColors.ControlText;
+            dataGridViewCellStyle2.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = DataGridViewTriState.False;
+            dgvLivros.DefaultCellStyle = dataGridViewCellStyle2;
+            dgvLivros.GridColor = SystemColors.ScrollBar;
+            dgvLivros.Location = new Point(437, 66);
+            dgvLivros.Margin = new Padding(3, 2, 3, 2);
+            dgvLivros.Name = "dgvLivros";
+            dgvLivros.ReadOnly = true;
+            dgvLivros.RowHeadersWidth = 51;
+            dgvLivros.RowTemplate.Height = 30;
+            dgvLivros.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvLivros.Size = new Size(732, 352);
+            dgvLivros.TabIndex = 0;
+            dgvLivros.CellDoubleClick += dgvLivros_CellDoubleClick;
+            dgvLivros.CellMouseDown += dgvLivros_CellMouseDown;
+            dgvLivros.ColumnHeaderMouseClick += dgvLivros_ColumnHeaderMouseClick;
             // 
             // label1
             // 
@@ -462,21 +471,19 @@
             // 
             dgvEmprestimosAtivos.AllowUserToDeleteRows = false;
             dgvEmprestimosAtivos.AllowUserToOrderColumns = true;
-            dataGridViewCellStyle7.Font = new Font("JetBrains Mono NL", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            dgvEmprestimosAtivos.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle7;
+            dataGridViewCellStyle3.Font = new Font("JetBrains Mono NL", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            dgvEmprestimosAtivos.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle3;
             dgvEmprestimosAtivos.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dgvEmprestimosAtivos.BackgroundColor = Color.WhiteSmoke;
-            dgvEmprestimosAtivos.CellBorderStyle = DataGridViewCellBorderStyle.Raised;
-            dgvEmprestimosAtivos.ColumnHeadersHeight = 30;
-            dgvEmprestimosAtivos.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            dataGridViewCellStyle8.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle8.BackColor = SystemColors.Window;
-            dataGridViewCellStyle8.Font = new Font("JetBrains Mono NL Light", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            dataGridViewCellStyle8.ForeColor = SystemColors.ControlText;
-            dataGridViewCellStyle8.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle8.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle8.WrapMode = DataGridViewTriState.False;
-            dgvEmprestimosAtivos.DefaultCellStyle = dataGridViewCellStyle8;
+            dgvEmprestimosAtivos.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridViewCellStyle4.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle4.BackColor = SystemColors.Window;
+            dataGridViewCellStyle4.Font = new Font("JetBrains Mono", 9F);
+            dataGridViewCellStyle4.ForeColor = SystemColors.ControlText;
+            dataGridViewCellStyle4.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle4.WrapMode = DataGridViewTriState.False;
+            dgvEmprestimosAtivos.DefaultCellStyle = dataGridViewCellStyle4;
             dgvEmprestimosAtivos.GridColor = SystemColors.ScrollBar;
             dgvEmprestimosAtivos.Location = new Point(207, 10);
             dgvEmprestimosAtivos.Margin = new Padding(3, 2, 3, 2);
@@ -487,7 +494,7 @@
             dgvEmprestimosAtivos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvEmprestimosAtivos.Size = new Size(732, 252);
             dgvEmprestimosAtivos.TabIndex = 0;
-            dgvEmprestimosAtivos.CellDoubleClick += dgv_livros_CellDoubleClick;
+            dgvEmprestimosAtivos.CellDoubleClick += dgvEmprestimosAtivos_CellDoubleClick;
             dgvEmprestimosAtivos.DataBindingComplete += dgvEmprestimosAtivos_DataBindingComplete;
             // 
             // groupBox1
@@ -521,6 +528,7 @@
             // 
             // groupBox2
             // 
+            groupBox2.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             groupBox2.BackColor = Color.WhiteSmoke;
             groupBox2.Controls.Add(btnRelatorio);
             groupBox2.Controls.Add(lblTotalExemplares);
@@ -579,6 +587,61 @@
             label10.TabIndex = 0;
             label10.Text = "Livros Cadastrados:";
             // 
+            // txtBuscarEmprestimos
+            // 
+            txtBuscarEmprestimos.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            txtBuscarEmprestimos.BackColor = SystemColors.Control;
+            txtBuscarEmprestimos.Font = new Font("JetBrains Mono NL", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            txtBuscarEmprestimos.Location = new Point(792, 422);
+            txtBuscarEmprestimos.Margin = new Padding(3, 2, 3, 2);
+            txtBuscarEmprestimos.Name = "txtBuscarEmprestimos";
+            txtBuscarEmprestimos.PlaceholderText = "Digite o nome do Aluno";
+            txtBuscarEmprestimos.Size = new Size(377, 25);
+            txtBuscarEmprestimos.TabIndex = 1;
+            txtBuscarEmprestimos.TextChanged += txtBuscarEmprestimo_TextChanged;
+            // 
+            // label12
+            // 
+            label12.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            label12.AutoSize = true;
+            label12.Font = new Font("JetBrains Mono NL SemiBold", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label12.Location = new Point(731, 425);
+            label12.Name = "label12";
+            label12.Size = new Size(56, 18);
+            label12.TabIndex = 0;
+            label12.Text = "Buscar";
+            // 
+            // menuLivros
+            // 
+            menuLivros.Font = new Font("JetBrains Mono", 8.999999F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            menuLivros.Items.AddRange(new ToolStripItem[] { editarToolStripMenuItem, excluirToolStripMenuItem, visualizarToolStripMenuItem });
+            menuLivros.Name = "contextMenuStrip1";
+            menuLivros.Size = new Size(145, 70);
+            // 
+            // editarToolStripMenuItem
+            // 
+            editarToolStripMenuItem.Image = (Image)resources.GetObject("editarToolStripMenuItem.Image");
+            editarToolStripMenuItem.Name = "editarToolStripMenuItem";
+            editarToolStripMenuItem.Size = new Size(144, 22);
+            editarToolStripMenuItem.Text = "Editar";
+            editarToolStripMenuItem.Click += editarToolStripMenuItem_Click;
+            // 
+            // excluirToolStripMenuItem
+            // 
+            excluirToolStripMenuItem.Image = (Image)resources.GetObject("excluirToolStripMenuItem.Image");
+            excluirToolStripMenuItem.Name = "excluirToolStripMenuItem";
+            excluirToolStripMenuItem.Size = new Size(144, 22);
+            excluirToolStripMenuItem.Text = "Excluir";
+            excluirToolStripMenuItem.Click += excluirToolStripMenuItem_ClickAsync;
+            // 
+            // visualizarToolStripMenuItem
+            // 
+            visualizarToolStripMenuItem.Image = (Image)resources.GetObject("visualizarToolStripMenuItem.Image");
+            visualizarToolStripMenuItem.Name = "visualizarToolStripMenuItem";
+            visualizarToolStripMenuItem.Size = new Size(144, 22);
+            visualizarToolStripMenuItem.Text = "Visualizar";
+            visualizarToolStripMenuItem.Click += visualizarToolStripMenuItem_Click;
+            // 
             // CadastroLivros
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -590,7 +653,9 @@
             Controls.Add(panel2);
             Controls.Add(panel1);
             Controls.Add(label1);
-            Controls.Add(dgv_livros);
+            Controls.Add(dgvLivros);
+            Controls.Add(label12);
+            Controls.Add(txtBuscarEmprestimos);
             Controls.Add(buscar);
             Controls.Add(txt_pesquisa);
             ForeColor = SystemColors.ControlText;
@@ -601,7 +666,7 @@
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Biblioteca Odolfo Soares";
             Load += CadastroLivros_Load;
-            ((System.ComponentModel.ISupportInitialize)dgv_livros).EndInit();
+            ((System.ComponentModel.ISupportInitialize)dgvLivros).EndInit();
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)nud_quantidade).EndInit();
@@ -611,13 +676,14 @@
             groupBox1.ResumeLayout(false);
             groupBox2.ResumeLayout(false);
             groupBox2.PerformLayout();
+            menuLivros.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
 
         #endregion
 
-        private DataGridView dgv_livros;
+        private DataGridView dgvLivros;
         private Label label1;
         private Panel panel1;
         private TextBox txt_titulo;
@@ -654,5 +720,11 @@
         private Label lblTotalTitulos;
         private Label label11;
         private Label label10;
+        private TextBox txtBuscarEmprestimos;
+        private Label label12;
+        private ContextMenuStrip menuLivros;
+        private ToolStripMenuItem editarToolStripMenuItem;
+        private ToolStripMenuItem excluirToolStripMenuItem;
+        private ToolStripMenuItem visualizarToolStripMenuItem;
     }
 }

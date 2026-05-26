@@ -46,6 +46,11 @@ namespace BibliotecaSoares
             {
                 dgvRelatorio.Columns["NomeAluno"].HeaderText = "Nome do Aluno";
             }
+            if (dgvRelatorio.Columns["QuantidadeLivrosEmprestados"] != null)
+            {
+                dgvRelatorio.Columns["QuantidadeLivrosEmprestados"].HeaderText = "Livros Retirados";
+            }
+
 
             if (dgvRelatorio.Columns["QuantidadeLivrosEmprestados"] != null)
             {
@@ -104,7 +109,7 @@ namespace BibliotecaSoares
                 if (_ordemCrescente)
                     listaAtual = listaAtual.OrderBy(r => r.Turma).ToList(); // A-Z
                 else
-                    listaAtual = listaAtual.OrderByDescending(r => r.QuantidadeLivrosEmprestados).ToList(); // Maior para Menor
+                    listaAtual = listaAtual.OrderByDescending(r => r.Turma).ToList(); // Maior para Menor
             }
             else if (nomeColunaClicada == "QuantidadeLivrosEmprestados") // Clique no cabeçalho da Quantidade
             {

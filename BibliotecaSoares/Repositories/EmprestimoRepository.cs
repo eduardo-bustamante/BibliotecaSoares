@@ -95,6 +95,7 @@ namespace BibliotecaSoares.Repositories
                     .Select(grupo => new RelatorioLivrosPorAlunoDTO
                     {
                         NomeAluno = grupo.Key, // O 'Key' do GroupBy é o Nome do aluno
+                        Turma = grupo.FirstOrDefault().Usuario.Turma, // Pega a turma do primeiro registro do grupo (todos os registros do grupo tem a mesma turma)
                         QuantidadeLivrosEmprestados = grupo.Count() // Conta quantos livros tem no grupo
                     })
 

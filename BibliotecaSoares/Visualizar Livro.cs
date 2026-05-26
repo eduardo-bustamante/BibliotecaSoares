@@ -43,6 +43,7 @@ namespace BibliotecaSoares
                     lbAno.Text = livro.Ano.ToString();
                     lbGenero.Text = livro.Genero;
                     lbQuantidade.Text = livro.QuantidadeTotal.ToString();
+                    lblIdioma.Text = livro.Idioma;
 
                     // Se você tiver outros campos como Editora, Ano, Gênero, coloque aqui!
                 }

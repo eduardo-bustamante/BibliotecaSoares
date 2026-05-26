@@ -17,7 +17,6 @@ namespace BibliotecaSoares.Repositories
 
         // Traz a lista de empréstimos que ainda NÃO foram devolvidos (para a sua grade)
         Task<List<Emprestimo>> ObterTodosAtivosAsync();
-
         Task<List<RelatorioLivrosPorAlunoDTO>> ObterRelatorioQuantidadePorAlunoAsync();
     }
 }

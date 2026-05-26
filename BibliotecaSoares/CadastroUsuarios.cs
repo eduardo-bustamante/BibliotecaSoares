@@ -1,4 +1,5 @@
 ﻿using BibliotecaSoares.Models;
+using BibliotecaSoares.Models.DTO;
 using BibliotecaSoares.Repositories;
 using System;
 using System.Collections.Generic;
@@ -6,8 +7,8 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Text;
-using System.Windows.Forms;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 
 namespace BibliotecaSoares
@@ -16,6 +17,7 @@ namespace BibliotecaSoares
     {
         private int _idSelecionadoUsuario = 0;
         private readonly IUsuarioRepository _usuarioRepository;
+        private bool _ordemCrescenteUsuarios = false;
         public CadastroUsuarios()
         {
             InitializeComponent();
@@ -87,7 +89,7 @@ namespace BibliotecaSoares
 
                 // Substitua 'dgvUsuarios' pelo nome exato do DataGridView que você criou para os usuários
                 dgvUsuarios.DataSource = null;
-                dgvUsuarios.DataSource = listaUsuarios;
+                dgvUsuarios.DataSource = listaUsuarios.OrderBy(u => u.Nome).ToList();
 
                 // --- PERSONALIZAÇÃO DOS CABEÇALHOS ---
                 dgvUsuarios.Columns["Nome"].HeaderText = "Nome do Aluno";
@@ -180,29 +182,6 @@ namespace BibliotecaSoares
             txt_telefone.TextChanged += txt_telefone_TextChanged;
         }
 
-        private void dgvUsuarios_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            // 1. Prevenção de erros: Ignora se o usuário der duplo clique no cabeçalho (que é a linha -1)
-            if (e.RowIndex >= 0)
-            {
-                // 2. Pega exatamente a linha que o usuário clicou
-                DataGridViewRow linhaClicada = dgvUsuarios.Rows[e.RowIndex];
-
-                // 3. Alimenta a nossa variável de controle com o ID do aluno
-                // Mesmo a coluna "Id" estando invisível, o dado continua lá nos bastidores!
-                _idSelecionadoUsuario = Convert.ToInt32(linhaClicada.Cells["Id"].Value);
-
-                // 4. Devolve os dados para os campos da tela
-                txt_nome.Text = linhaClicada.Cells["Nome"].Value.ToString();
-                txt_turma.Text = linhaClicada.Cells["Turma"].Value?.ToString();
-
-                // O telefone tem a nossa lógica especial, então passamos o texto cru e ela se vira
-                txt_telefone.Text = linhaClicada.Cells["Telefone"].Value?.ToString();
-
-                // 5. Opcional: Avisa visualmente que o sistema entrou em "Modo de Edição"
-                btn_salvar.Text = "Atualizar Cadastro";
-            }
-        }
 
         private async void btn_deletar_Click(object sender, EventArgs e)
         {
@@ -263,5 +242,126 @@ namespace BibliotecaSoares
             // 4. Coloca o cursor do mouse piscando no primeiro campo, pronto para começar de novo
             txt_nome.Focus();
         }
+
+        private void dgvUsuarios_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            // 1. Prevenção de erros: Ignora se o usuário der duplo clique no cabeçalho (que é a linha -1)
+            if (e.RowIndex >= 0)
+            {
+                // 2. Pega exatamente a linha que o usuário clicou
+                DataGridViewRow linhaClicada = dgvUsuarios.Rows[e.RowIndex];
+
+                // 3. Alimenta a nossa variável de controle com o ID do aluno
+                // Mesmo a coluna "Id" estando invisível, o dado continua lá nos bastidores!
+                _idSelecionadoUsuario = Convert.ToInt32(linhaClicada.Cells["Id"].Value);
+
+                // 4. Devolve os dados para os campos da tela
+                txt_nome.Text = linhaClicada.Cells["Nome"].Value.ToString();
+                txt_turma.Text = linhaClicada.Cells["Turma"].Value?.ToString();
+
+                // O telefone tem a nossa lógica especial, então passamos o texto cru e ela se vira
+                txt_telefone.Text = linhaClicada.Cells["Telefone"].Value?.ToString();
+
+                // 5. Opcional: Avisa visualmente que o sistema entrou em "Modo de Edição"
+                btn_salvar.Text = "Atualizar Cadastro";
+            }
+        }
+
+        private async void txtBuscaUsuarios_TextChangedAsync(object sender, EventArgs e)
+        {
+            try
+            {
+                string termoBusca = txtBuscaUsuarios.Text.Trim().ToLower();
+
+                // 1. Busca todos os usuários do banco (ou use seu método existente)
+                var todosUsuarios = await _usuarioRepository.ObterTodosAsync();
+
+                // 2. Filtra e transforma no DTO
+                var listaFiltrada = todosUsuarios
+                    .Where(u =>
+                        (u.Nome != null && u.Nome.ToLower().Contains(termoBusca)) ||
+                        (u.Turma != null && u.Turma.ToLower().Contains(termoBusca))
+                    )
+                    .Select(u => new UsuarioGridDTO
+                    {
+                        Id = u.Id,
+                        Nome = u.Nome,
+                        Telefone = u.Telefone,
+                        Turma = u.Turma
+                    }).OrderBy(u => u.Nome)
+                    .ToList();
+
+                // 3. Alimenta a grade apenas com as colunas do DTO
+                dgvUsuarios.DataSource = null;
+                dgvUsuarios.DataSource = listaFiltrada;
+
+                // 4. Reaplica a formatação (tamanhos e esconder o ID)
+                FormatarGridUsuarios();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro na busca de usuários: {ex.Message}");
+            }
+        }
+        private void FormatarGridUsuarios()
+        {
+            if (dgvUsuarios.Columns.Count == 0) return;
+
+            // Tradução e Maquiagem
+            if (dgvUsuarios.Columns["Nome"] != null) dgvUsuarios.Columns["Nome"].HeaderText = "Nome Completo";
+            if (dgvUsuarios.Columns["Telefone"] != null) dgvUsuarios.Columns["Telefone"].HeaderText = "Telefone";
+            if (dgvUsuarios.Columns["Turma"] != null) dgvUsuarios.Columns["Turma"].HeaderText = "Turma";
+
+            // Oculta o ID
+            if (dgvUsuarios.Columns["Id"] != null) dgvUsuarios.Columns["Id"].Visible = false;
+
+            // Tamanhos
+            if (dgvUsuarios.Columns["Telefone"] != null) dgvUsuarios.Columns["Telefone"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            if (dgvUsuarios.Columns["Turma"] != null) dgvUsuarios.Columns["Turma"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            if (dgvUsuarios.Columns["Nome"] != null) dgvUsuarios.Columns["Nome"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+        }
+
+        private void dgvUsuarios_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+
+            // 1. Resgata a lista atual que está na tela (Usando o DTO que você criou!)
+            var listaAtual = dgvUsuarios.DataSource as List<Usuario>;
+
+            // Se a lista estiver vazia ou houver erro no cast, não faz nada
+            if (listaAtual == null || listaAtual.Count == 0) return;
+
+            // 2. Descobre qual foi a coluna exata que recebeu o clique
+            string nomeColunaClicada = dgvUsuarios.Columns[e.ColumnIndex].DataPropertyName;
+
+            // 3. Aplica a ordenação
+            if (nomeColunaClicada == "Nome")
+            {
+                listaAtual = _ordemCrescenteUsuarios
+                    ? listaAtual.OrderBy(u => u.Nome).ToList()
+                    : listaAtual.OrderByDescending(u => u.Nome).ToList();
+            }
+            else if (nomeColunaClicada == "Turma")
+            {
+                // Muito útil para agrupar todos os alunos da mesma turma com um clique
+                listaAtual = _ordemCrescenteUsuarios
+                    ? listaAtual.OrderBy(u => u.Turma).ToList()
+                    : listaAtual.OrderByDescending(u => u.Turma).ToList();
+            }
+            else if (nomeColunaClicada == "Telefone")
+            {
+                // Muito útil para agrupar todos os alunos da mesma turma com um clique
+                listaAtual = _ordemCrescenteUsuarios
+                    ? listaAtual.OrderBy(u => u.Telefone).ToList()
+                    : listaAtual.OrderByDescending(u => u.Telefone).ToList();
+            }
+            // (Opcional) Pode adicionar um else if para "Telefone" se achar útil
+
+            // 4. Inverte a chave para o próximo clique
+            _ordemCrescenteUsuarios = !_ordemCrescenteUsuarios;
+
+            // 5. Devolve a lista organizada para a grade
+            dgvUsuarios.DataSource = listaAtual;
+        }
     }
+    
 }
