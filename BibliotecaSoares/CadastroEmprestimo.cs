@@ -27,13 +27,27 @@ namespace BibliotecaSoares
         {
             try
             {
-                // 1. Busca os alunos e JÁ ORDENA no C# (Seguro)
+                // 1. Busca os alunos no banco
                 var alunos = await _usuarioRepository.ObterTodosAsync();
-                cmbUsuarios.DataSource = alunos.OrderBy(u => u.Nome).ToList();
 
-                // O que o bibliotecário vê na tela:
-                cmbUsuarios.DisplayMember = "Nome";
-                // O ID secreto que o sistema vai guardar:
+                // 2. Prepara os dados juntando Nome e Turma em um texto só
+                var alunosFormatados = alunos
+                    .Select(u => new
+                    {
+                        Id = u.Id,
+                        // O símbolo $ permite colocar as variáveis dentro das chaves { }
+                        NomeComTurma = $"{u.Nome} - {u.Turma}"
+                    })
+                    .OrderBy(u => u.NomeComTurma)
+                    .ToList();
+
+                // 3. Joga no ComboBox
+                cmbUsuarios.DataSource = alunosFormatados;
+
+                // O que o bibliotecário vê na tela (Agora é a nossa propriedade combinada!)
+                cmbUsuarios.DisplayMember = "NomeComTurma";
+
+                // O ID secreto continua protegido e funcionando perfeitamente para o banco de dados
                 cmbUsuarios.ValueMember = "Id";
 
                 // 2. Faz a mesma coisa para os Livros

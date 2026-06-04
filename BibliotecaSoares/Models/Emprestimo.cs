@@ -19,7 +19,9 @@ namespace BibliotecaSoares.Models
         // --- Dados do Empréstimo ---
         public DateTime DataEmprestimo { get; set; }
         public DateTime DataPrevistaDevolucao { get; set; }
+        public DateTime? DataDevolucaoReal { get; set; }
         public bool Devolvido { get; set; } = false;
+        public decimal ValorMultaPaga { get; set; }
 
     }
 }

@@ -106,6 +106,23 @@ namespace BibliotecaSoares.Repositories
                 return relatorio;
             }
         }
+
+        async Task<Emprestimo> IEmprestimoRepository.ObterPorIdAsync(int id)
+        {
+            using (var context = new AppDbContext())
+            {
+                return await context.Emprestimos.FindAsync(id);
+            }
+        }
+
+        public async Task AtualizarAsync(Emprestimo emprestimo)
+        {
+            using (var context = new AppDbContext())
+            {
+                context.Emprestimos.Update(emprestimo);
+                await context.SaveChangesAsync();
+            }
+        }
     }
 
 }

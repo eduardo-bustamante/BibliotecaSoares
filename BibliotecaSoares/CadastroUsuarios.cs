@@ -18,15 +18,50 @@ namespace BibliotecaSoares
         private int _idSelecionadoUsuario = 0;
         private readonly IUsuarioRepository _usuarioRepository;
         private bool _ordemCrescenteUsuarios = false;
+        private int _idSelecionado;
+
         public CadastroUsuarios()
         {
             InitializeComponent();
             _usuarioRepository = new UsuarioRepository();
+            _idSelecionado = 0; // Inicializa a variável de controle para o modo "Novo Cadastro"
         }
 
 
         private async void btnSalvarUsuario_ClickAsync(object sender, EventArgs e)
         {
+            // 1. Captura o Nome e a Turma digitados, limpando espaços acidentais nas pontas
+            string nomeDigitado = txt_nome.Text.Trim();
+
+            // ATENÇÃO: Troque "txt_turma" pelo nome exato da sua TextBox ou ComboBox da turma!
+            string turmaDigitada = txt_turma.Text.Trim();
+
+            // 2. Busca todos os usuários cadastrados
+            var todosUsuarios = await _usuarioRepository.ObterTodosAsync();
+
+            // 3. A Mágica Dupla: Procura se já existe alguém com o MESMO NOME e a MESMA TURMA
+            bool usuarioJaExiste = todosUsuarios.Any(u =>
+                u.Nome.Equals(nomeDigitado, StringComparison.OrdinalIgnoreCase) &&
+                u.Turma.Equals(turmaDigitada, StringComparison.OrdinalIgnoreCase) &&
+                u.Id != _idSelecionado // Continua ignorando o próprio aluno no modo "Editar"
+            );
+
+            // 4. Se encontrou o clone perfeito (Nome e Turma iguais), bloqueia o cadastro!
+            if (usuarioJaExiste)
+            {
+                MessageBox.Show($"O(a) aluno(a) '{nomeDigitado}' já está cadastrado(a) na turma '{turmaDigitada}'!\n\nVerifique se não é um cadastro duplicado.",
+                                "Aluno Já Existente",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Warning);
+
+                return; // Impede que o código continue e salve a duplicidade
+            }
+
+            // ==========================================
+            // SE O CÓDIGO CHEGOU AQUI, O ALUNO É ÚNICO NESSA TURMA!
+            // Pode continuar com a sua lógica normal de salvar...
+            // ==========================================
+
             // 1. Validação Básica
             if (string.IsNullOrWhiteSpace(txt_nome.Text) || string.IsNullOrWhiteSpace(txt_turma.Text))
             {
@@ -362,6 +397,55 @@ namespace BibliotecaSoares
             // 5. Devolve a lista organizada para a grade
             dgvUsuarios.DataSource = listaAtual;
         }
+
+        private void dgvUsuarios_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            // Verifica se foi o botão direito e em uma linha válida
+            if (e.Button == MouseButtons.Right && e.RowIndex >= 0)
+            {
+                dgvUsuarios.ClearSelection();
+                dgvUsuarios.Rows[e.RowIndex].Selected = true;
+
+                // Abre o menu de usuários na posição do mouse
+                menuUsuarios.Show(Cursor.Position);
+            }
+        }
+
+        private void verLivrosEmprestadosToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (dgvUsuarios.SelectedRows.Count > 0)
+            {
+                // 1. Captura o ID e o Nome do Usuário selecionado na grade
+                // Certifique-se de que o nome da célula bate exatamente com as propriedades do seu UsuarioGridDTO
+                int idUsuario = Convert.ToInt32(dgvUsuarios.SelectedRows[0].Cells["Id"].Value);
+                string nomeUsuario = dgvUsuarios.SelectedRows[0].Cells["Nome"].Value.ToString();
+                string turmaUsuario = dgvUsuarios.SelectedRows[0].Cells["Turma"].Value.ToString();
+
+                // 2. Cria a nossa nova janela injetando esses dois dados no construtor dela
+                FormHistoricoLeitura telaHistorico = new FormHistoricoLeitura(idUsuario, nomeUsuario, turmaUsuario);
+
+                // 3. Abre a janela como uma caixa de diálogo (bloqueia o fundo até fechar)
+                telaHistorico.ShowDialog();
+            }
+        }
+
+        private void multasToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // 1. Verifica se tem um usuário selecionado na grade
+            if (dgvUsuarios.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Selecione um usuário primeiro.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // 2. Pega o nome do aluno na linha clicada
+            // ATENÇÃO: Substitua "Nome" pelo nome exato da coluna na sua grade de usuários
+            string nomeAlunoClicado = dgvUsuarios.SelectedRows[0].Cells["Nome"].Value.ToString();
+
+            // 3. A MÁGICA: Abre a tela de atrasos INJETANDO o nome do aluno!
+            FrmRelatorioAtrasos telaMultas = new FrmRelatorioAtrasos(nomeAlunoClicado);
+            telaMultas.ShowDialog();
+        }
     }
-    
+
 }

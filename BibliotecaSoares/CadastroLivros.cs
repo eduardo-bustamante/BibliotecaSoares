@@ -1,6 +1,10 @@
 using BibliotecaSoares.Models;
 using BibliotecaSoares.Models.DTO;
 using BibliotecaSoares.Repositories;
+using Microsoft.Data.SqlClient;
+using System.Configuration;
+using System.Timers;
+
 
 namespace BibliotecaSoares
 {
@@ -10,14 +14,82 @@ namespace BibliotecaSoares
         private readonly IEmprestimoRepository _emprestimoRepository;
         private int _idSelecionado = 0;
         private Relatorios _telaRelatorio; // Variável para armazenar a instância da tela de relatório
-                                           // Variável para lembrar se o último clique foi de A-Z ou de Z-A
-        private bool _ordemCrescente = true;
+        private List<LivroGridDTO> _listaLivrosNaTela;
+        private bool _ordemCrescenteLivros = true;
 
+        // Variável para garantir que o backup só rode UMA vez por dia às 16h
+        private bool _backupRealizadoHoje = false;
+        private System.Windows.Forms.Timer _timerBackup;
+        private string _nomeArquivoCapa = "";
         public CadastroLivros()
         {
             InitializeComponent();
             _livroRepository = new LivroRepository();
-            _emprestimoRepository = new EmprestimoRepository();
+            _emprestimoRepository = new EmprestimoRepository(); ConfigurarTimerBackup();
+        }
+
+        private void ConfigurarTimerBackup()
+        {
+            _timerBackup = new System.Windows.Forms.Timer(); _timerBackup.Interval = 60000; // Checa o relógio a cada 1 minuto (60.000 milissegundos)
+            _timerBackup.Tick += TimerBackup_Tick;
+            _timerBackup.Start();
+        }
+
+        private async void TimerBackup_Tick(object sender, EventArgs e)
+        {
+            DateTime agora = DateTime.Now;
+
+            // Se passar das 16h, libera a trava para o dia seguinte
+            if (agora.Hour != 16)
+            {
+                _backupRealizadoHoje = false;
+            }
+
+            // Se for exatamente 16h (e zero minutos) e ainda não rodou hoje
+            if (agora.Hour == 16 && agora.Minute == 00 && !_backupRealizadoHoje)
+            {
+                _backupRealizadoHoje = true; // Trava para não rodar de novo no próximo segundo
+                await ExecutarBackupAutomaticoSilenciosoAsync();
+            }
+        }
+        private async Task ExecutarBackupAutomaticoSilenciosoAsync()
+        {
+            try
+            {
+                // 1. Define a pasta na raiz do disco C:
+                string pastaRaizBackup = @"C:\BackupsBiblioteca";
+
+                // Se a pasta não existir na raiz, o C# cria ela automaticamente
+                if (!Directory.Exists(pastaRaizBackup))
+                {
+                    Directory.CreateDirectory(pastaRaizBackup);
+                }
+
+                // 2. Monta o nome do arquivo com a data de hoje
+                string nomeArquivo = $"Backup_Automatico_{DateTime.Now.ToString("dd_MM_yyyy")}.bak";
+                string caminhoFinalCompleto = Path.Combine(pastaRaizBackup, nomeArquivo);
+
+                // 3. String de conexão e comando oficial do SQL Server
+                string connectionString = @"Server=.\SQLEXPRESS;Database=OdolfoBiblioteca;Trusted_Connection=True;TrustServerCertificate=True;";
+                string comandoSql = $@"BACKUP DATABASE [OdolfoBiblioteca] TO DISK = '{caminhoFinalCompleto}' WITH FORMAT, NAME = 'Backup Automatico Diario';";
+
+                using (SqlConnection conexao = new SqlConnection(connectionString))
+                {
+                    using (SqlCommand comando = new SqlCommand(comandoSql, conexao))
+                    {
+                        await conexao.OpenAsync();
+                        await comando.ExecuteNonQueryAsync();
+                    }
+                }
+
+                // (Opcional) Salva um aviso no console do sistema apenas para registro do desenvolvedor
+                Console.WriteLine($"[BACKUP] Cópia automatizada gerada com sucesso às {DateTime.Now}");
+            }
+            catch (Exception ex)
+            {
+                // Se der erro (ex: falta de permissão), avisa o usuário porque é uma falha crítica
+                MessageBox.Show($"O backup automático das 16:00 falhou!\n\nErro: {ex.Message}", "Alerta de Segurança", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private async Task CarregarGridAsync()
@@ -28,12 +100,27 @@ namespace BibliotecaSoares
 
                 var listaLivros = await _livroRepository.ListarTodosAsync();
 
+                _listaLivrosNaTela = listaLivros.Select(l => new LivroGridDTO
+                {
+                    Id = l.Id,
+                    Titulo = l.Titulo,
+                    Autor = l.Autor,
+                    Editora = l.Editora,
+                    Ano = l.Ano,
+                    Genero = l.Genero,
+                    Idioma = l.Idioma,
+                    CaminhoCapa = l.CaminhoCapa,
+                    QuantidadeTotal = l.QuantidadeTotal,
+                    QuantidadeEmprestada = l.QuantidadeEmprestada,
+                    QuantidadeDisponivel = l.QuantidadeDisponivel
+                }).OrderBy(l => l.Id).ToList();
+
                 // Define a altura padrão para todas as NOVAS linhas que vão entrar na grade
                 dgvLivros.RowTemplate.Height = 18;
 
                 dgvLivros.DataSource = null;
 
-                dgvLivros.DataSource = listaLivros;
+                dgvLivros.DataSource = _listaLivrosNaTela;
 
                 FormatarGridLivros();
 
@@ -105,6 +192,60 @@ namespace BibliotecaSoares
         }
         private async void btn_salvar_ClickAsync(object sender, EventArgs e)
         {
+            // 1. Limpa os espaços em branco
+            string tituloDigitado = txt_titulo.Text.Trim();
+            string autorDigitado = txt_autor.Text.Trim();
+            int quantidadeDigitada = Convert.ToInt32(nud_quantidade.Value);
+
+            // 2. Busca todos os livros cadastrados
+            var todosLivros = await _livroRepository.ListarTodosAsync();
+
+            // 3. Tenta encontrar (capturar) o livro gêmeo no banco de dados
+            var livroExistente = todosLivros.FirstOrDefault(l =>
+                l.Titulo.Equals(tituloDigitado, StringComparison.OrdinalIgnoreCase) &&
+                l.Autor.Equals(autorDigitado, StringComparison.OrdinalIgnoreCase) &&
+                l.Id != _idSelecionado // Ignora o próprio livro no modo edição
+            );
+
+            // 4. Se o livro foi encontrado...
+            if (livroExistente != null)
+            {
+                // Faz a pergunta para a bibliotecária
+                var resposta = MessageBox.Show(
+                    $"O livro '{tituloDigitado}' já está no sistema com {livroExistente.QuantidadeTotal} exemplar(es).\n\nDeseja somar os {quantidadeDigitada} novos exemplares ao registro existente?",
+                    "Livro Duplicado Encontrado",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+
+                // Se ela clicar em SIM
+                if (resposta == DialogResult.Yes)
+                {
+                    try
+                    {
+                        // Soma a quantidade nova com a que já estava no banco
+                        livroExistente.QuantidadeTotal += quantidadeDigitada;
+
+                        // Salva a atualização no banco de dados (Use o seu método de Atualizar/Update aqui)
+                        await _livroRepository.AtualizarAsync(livroExistente);
+
+                        MessageBox.Show("Exemplares adicionados com sucesso ao livro existente!", "Estoque Atualizado", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                        // Limpa a tela e recarrega a grade para mostrar a nova quantidade
+                        // LimparTela(); 
+                        CarregarGridAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Erro ao atualizar estoque: {ex.Message}");
+                    }
+                }
+
+                // Retorna (cancela) em ambos os casos: 
+                // Se ela disse SIM, já salvou e não precisa continuar. 
+                // Se ela disse NÃO, a tela para, permitindo que ela mude o título ou autor se digitou errado.
+                return;
+            }
+
             // 1. Validação do Título
             if (string.IsNullOrWhiteSpace(txt_titulo.Text))
             {
@@ -137,7 +278,7 @@ namespace BibliotecaSoares
                     Genero = txt_genero.Text,
                     QuantidadeTotal = Convert.ToInt32(nud_quantidade.Value),
                     Idioma = cb_idioma.Text,
-
+                    CaminhoCapa = _nomeArquivoCapa
                 };
 
                 if (_idSelecionado == 0)
@@ -166,6 +307,8 @@ namespace BibliotecaSoares
                 txt_genero.Clear();
                 nud_quantidade.Value = 1;
                 cb_idioma.SelectedIndex = -1;
+                pbCapa.Image = null;
+                _nomeArquivoCapa = "";
 
 
                 await CarregarGridAsync();
@@ -173,7 +316,19 @@ namespace BibliotecaSoares
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erro ao salvar: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // Pega a mensagem genérica inicial
+                string mensagemErro = ex.Message;
+
+                // A MÁGICA: Vai cavando para encontrar o erro real que o banco de dados enviou
+                Exception erroInterno = ex.InnerException;
+                while (erroInterno != null)
+                {
+                    mensagemErro += "\n\nDetalhe exato do erro:\n" + erroInterno.Message;
+                    erroInterno = erroInterno.InnerException;
+                }
+
+                // Mostra o erro completo na tela
+                MessageBox.Show(mensagemErro, "Falha ao Salvar", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -194,6 +349,33 @@ namespace BibliotecaSoares
                 txt_genero.Text = linhaClicada.Cells["Genero"].Value.ToString();
                 nud_quantidade.Value = Convert.ToDecimal(linhaClicada.Cells["QuantidadeTotal"].Value);
                 cb_idioma.Text = linhaClicada.Cells["Idioma"].Value.ToString();
+
+                // --- CORREÇÃO DA CAPA DAQUI EM DIANTE ---
+
+                // 1. Limpa o PictureBox e a variável de controle antes de carregar o novo
+                pbCapa.ImageLocation = null;
+                _nomeArquivoCapa = "";
+
+                // 2. Resgata o nome do arquivo que veio da linha da grade
+                var nomeArquivo = linhaClicada.Cells["CaminhoCapa"].Value?.ToString();
+
+                // 3. Se houver um nome de arquivo salvo para este livro
+                if (!string.IsNullOrEmpty(nomeArquivo))
+                {
+                    // Monta o caminho completo juntando a pasta do sistema com o nome do arquivo
+                    string pastaCapas = Path.Combine(Application.StartupPath, "CapasLivros");
+                    string caminhoCompletoDaFoto = Path.Combine(pastaCapas, nomeArquivo);
+
+                    // 4. Se a foto realmente existir na pasta física, carrega ela com segurança
+                    if (File.Exists(caminhoCompletoDaFoto))
+                    {
+                        // Carrega usando ImageLocation (não tranca o arquivo no Windows!)
+                        pbCapa.ImageLocation = caminhoCompletoDaFoto;
+
+                        // GUARDA O NOME NA VARIÁVEL GLOBAL! (Fundamental para quando você clicar em Salvar/Editar)
+                        _nomeArquivoCapa = nomeArquivo;
+                    }
+                }
             }
         }
 
@@ -227,24 +409,50 @@ namespace BibliotecaSoares
         {
             try
             {
-                string termoPesquisa = txt_pesquisa.Text.Trim();
+                string termoBusca = txt_pesquisa.Text.Trim().ToLower();
 
-                if (string.IsNullOrEmpty(termoPesquisa))
+
+                if (string.IsNullOrEmpty(termoBusca))
                 {
                     await CarregarGridAsync(); // Recarrega a grade com todos os livros se o campo de pesquisa estiver vazio
                     return;
                 }
                 else
                 {
-                    var listaFiltrada = await _livroRepository.ListarPortituloAsync(txt_pesquisa.Text);
+                    // 1. Busca todos os livros do banco (ou use sua lista já em memória)
+                    var todosLivros = await _livroRepository.ListarTodosAsync
+                        ();
+
+                    // 2. O SEGREDO: O filtro agora olha para o Título OU (||) para o Autor
+                    var listaFiltrada = todosLivros
+                        .Where(l =>
+                            (l.Titulo != null && l.Titulo.ToLower().Contains(termoBusca)) ||
+                            (l.Autor != null && l.Autor.ToLower().Contains(termoBusca))
+                        )
+                        .Select(l => new LivroGridDTO // Lembre-se de usar o seu DTO se tiver um!
+                        {
+                            Id = l.Id,
+                            Titulo = l.Titulo,
+                            Autor = l.Autor,
+                            QuantidadeTotal = l.QuantidadeTotal,
+                            QuantidadeEmprestada = l.QuantidadeEmprestada,
+                            QuantidadeDisponivel = l.QuantidadeDisponivel - l.QuantidadeEmprestada
+
+                            // ... outras colunas que você exibe na grade
+                        })
+                        .OrderBy(l => l.Titulo) // Mantém a ordem alfabética padrão
+                        .ToList();
+
+                    // 3. Atualiza a grade
                     dgvLivros.DataSource = null;
                     dgvLivros.DataSource = listaFiltrada;
                     FormatarGridLivros();
                 }
+
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erro ao pesquisar: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Console.WriteLine($"Erro na busca de livros: {ex.Message}");
             }
         }
 
@@ -266,6 +474,8 @@ namespace BibliotecaSoares
             txt_genero.Clear();
             nud_quantidade.Value = 1;
             cb_idioma.SelectedIndex = -1;
+            pbCapa.Image = null;
+            _nomeArquivoCapa = "";
 
         }
 
@@ -391,35 +601,76 @@ namespace BibliotecaSoares
         private async void btnDevolver_ClickAsync(object sender, EventArgs e)
         {
             // 1. Verifica se tem alguma linha selecionada na grade
-            if (dgvEmprestimosAtivos.CurrentRow == null)
+            // 1. Validação de segurança: Verifica se existe alguma linha selecionada na grade de empréstimos
+            if (dgvEmprestimosAtivos.SelectedRows.Count == 0)
             {
-                MessageBox.Show("Por favor, selecione um empréstimo na lista para devolver.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Por favor, selecione um empréstimo na grade para realizar a devolução.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             try
             {
-                // 2. Pega o ID do empréstimo que está na linha que o usuário clicou
-                int idEmprestimoSelecionado = Convert.ToInt32(dgvEmprestimosAtivos.CurrentRow.Cells["Id"].Value);
+                // 2. Resgata o ID do empréstimo da linha selecionada
+                int idEmprestimo = Convert.ToInt32(dgvEmprestimosAtivos.SelectedRows[0].Cells["Id"].Value);
 
-                // Confirmação de segurança
-                var confirmacao = MessageBox.Show("Confirmar a devolução deste livro?", "Devolução", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                // 3. Busca o registro completo direto do banco de dados
+                var emprestimo = await _emprestimoRepository.ObterPorIdAsync(idEmprestimo);
 
-                if (confirmacao == DialogResult.Yes)
+                if (emprestimo == null) return;
+
+                // 4. Configuração das variáveis de tempo e valores
+                decimal valorMultaDiaria = 1.50m; // Defina aqui o valor da diária de atraso
+                decimal multaCalculada = 0;
+                DateTime dataHoje = DateTime.Now.Date;
+                DateTime dataPrazo = emprestimo.DataPrevistaDevolucao.Date;
+
+                // 5. CALCULA A MULTA NA HORA (ON THE FLY)
+                if (dataHoje > dataPrazo)
                 {
-                    // 3. Chama a regra de negócio! (Isso muda o status para devolvido e soma +1 no estoque)
-                    await _emprestimoRepository.RegistrarDevolucaoAsync(idEmprestimoSelecionado);
+                    TimeSpan diferencaTempo = dataHoje - dataPrazo;
+                    int diasAtrasados = diferencaTempo.Days;
+                    multaCalculada = diasAtrasados * valorMultaDiaria;
 
-                    MessageBox.Show("Livro devolvido com sucesso e retornado ao estoque!", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    // Pergunta ao bibliotecário se a multa foi paga ou se ele deseja prosseguir
+                    var resultadoMulta = MessageBox.Show(
+                        $"Atenção! Esta devolução está ATRASADA em {diasAtrasados} dias.\n\n" +
+                        $"Valor da multa gerada: R$ {multaCalculada:F2}\n\n" +
+                        "O aluno realizou o pagamento da multa agora?",
+                        "Cobrança de Multa",
+                        MessageBoxButtons.YesNoCancel,
+                        MessageBoxIcon.Warning);
 
-                    // 4. Atualiza as duas grades (para o empréstimo sumir dessa lista, e o estoque do livro atualizar na outra aba)
-                    await CarregarGridEmprestimosAtivosAsync();
-                    await CarregarGridAsync(); // Chame o seu método que recarrega os livros aqui
+                    // Se o bibliotecário clicar em Cancelar, interrompe a devolução inteira
+                    if (resultadoMulta == DialogResult.Cancel) return;
+
+                    // Se ele clicar em Não (o aluno não pagou agora), você pode escolher se barra ou se zera
+                    if (resultadoMulta == DialogResult.No)
+                    {
+                        multaCalculada = diasAtrasados * valorMultaDiaria;
+                    }
+                    if (resultadoMulta == DialogResult.Yes)
+                    {
+                        multaCalculada = 0; // Zera a multa porque o aluno pagou
+                    }
+
                 }
+
+                // 6. ATUALIZA O REGISTRO DO EMPRÉSTIMO
+                emprestimo.DataDevolucaoReal = DateTime.Now;
+                emprestimo.Devolvido = true;
+                emprestimo.ValorMultaPaga = multaCalculada;
+
+                // >>> A LINHA QUE FALTA AQUI: <<<
+                await _emprestimoRepository.AtualizarAsync(emprestimo);
+
+                // 8. FEEDBACK PARA O USUÁRIO E ATUALIZAÇÃO DA TELA
+                MessageBox.Show("Devolução realizada e estoque atualizado com sucesso!", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                CarregarGridEmprestimosAtivosAsync(); // Recarrega a grade de empréstimos ativos para remover o que acabou de ser devolvido
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Erro na Devolução", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Erro ao processar a devolução: {ex.Message}", "Falha", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -496,7 +747,10 @@ namespace BibliotecaSoares
             {
                 dgvLivros.Columns["Genero"].Visible = false;
             }
-
+            if (dgvLivros.Columns["CaminhoCapa"] != null)
+            {
+                dgvLivros.Columns["CaminhoCapa"].Visible = false;
+            }
             if (dgvLivros.Columns["Editora"] != null)
             {
                 dgvLivros.Columns["Editora"].Visible = false;
@@ -509,6 +763,12 @@ namespace BibliotecaSoares
             // --- TAMANHO DAS COLUNAS ---
             // 1. O ID e as Quantidades ficam no modo "AllCells" (Eles encolhem para ocupar 
             // apenas a largura exata do texto que está dentro deles)
+            // 1. Desliga a sanfona automática do Windows Forms
+            dgvLivros.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+
+            // 2. Trava a altura do cabeçalho em um tamanho fixo, confortável e elegante (35 ou 40 são ótimos)
+            dgvLivros.ColumnHeadersHeight = 35;
+
             dgvLivros.Columns["Id"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
             dgvLivros.Columns["QuantidadeTotal"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
             dgvLivros.Columns["QuantidadeEmprestada"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
@@ -539,44 +799,44 @@ namespace BibliotecaSoares
 
         private void dgvLivros_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
-            // 1. Resgata a lista atual que está aparecendo na tela
-            var listaAtual = dgvLivros.DataSource as List<Livro>;
+            // 1. Resgata a lista atual que está na tela (seja ela completa ou já filtrada pela busca)
+            // ATENÇÃO: Use o nome exato do DTO que você está usando para a grade de livros!
+            var listaAtual = dgvLivros.DataSource as List<LivroGridDTO>;
+
+            // Se a lista estiver vazia ou houver erro na conversão, aborta para não travar
             if (listaAtual == null || listaAtual.Count == 0) return;
 
-            // 2. Descobre qual foi a coluna exata que o usuário clicou (ex: "Titulo", "Autor")
+            // 2. Descobre o nome exato da coluna que recebeu o clique
             string nomeColunaClicada = dgvLivros.Columns[e.ColumnIndex].DataPropertyName;
 
-            // 3. Aplica a ordenação dependendo da coluna clicada
+            // 3. Aplica a ordenação em cima da lista atual
             if (nomeColunaClicada == "Titulo")
             {
-                if (_ordemCrescente)
-                    listaAtual = listaAtual.OrderBy(l => l.Titulo).ToList(); // A-Z
-                else
-                    listaAtual = listaAtual.OrderByDescending(l => l.Titulo).ToList(); // Z-A
-
-                _ordemCrescente = !_ordemCrescente; // Inverte a chave para o próximo clique
+                listaAtual = _ordemCrescenteLivros
+                    ? listaAtual.OrderBy(l => l.Titulo).ToList()
+                    : listaAtual.OrderByDescending(l => l.Titulo).ToList();
             }
             else if (nomeColunaClicada == "Autor")
             {
-                if (_ordemCrescente)
-                    listaAtual = listaAtual.OrderBy(l => l.Autor).ToList();
-                else
-                    listaAtual = listaAtual.OrderByDescending(l => l.Autor).ToList();
-
-                _ordemCrescente = !_ordemCrescente;
+                listaAtual = _ordemCrescenteLivros
+                    ? listaAtual.OrderBy(l => l.Autor).ToList()
+                    : listaAtual.OrderByDescending(l => l.Autor).ToList();
             }
             else if (nomeColunaClicada == "Id")
             {
-                if (_ordemCrescente)
-                    listaAtual = listaAtual.OrderBy(l => l.Id).ToList();
-                else
-                    listaAtual = listaAtual.OrderByDescending(l => l.Id).ToList();
-
-                _ordemCrescente = !_ordemCrescente;
+                // Ordenação numérica perfeita
+                listaAtual = _ordemCrescenteLivros
+                    ? listaAtual.OrderBy(l => l.Id).ToList()
+                    : listaAtual.OrderByDescending(l => l.Id).ToList();
             }
 
-            // 4. Devolve a lista organizada para a grade
+            // 4. Inverte a chave para o próximo clique
+            _ordemCrescenteLivros = !_ordemCrescenteLivros;
+
+            // 5. DEVOLVE A LISTA ORGANIZADA PARA A GRADE (Limpando antes!)
+            dgvLivros.DataSource = null; // Zera a grade primeiro para forçar o Windows a piscar e atualizar
             dgvLivros.DataSource = listaAtual;
+            FormatarGridLivros(); // Reaplica a formatação para garantir que tudo fique bonito
         }
 
         // Método exclusivo para atualizar o painel
@@ -719,6 +979,190 @@ namespace BibliotecaSoares
                     telaVisualizar.ShowDialog();
                 }
             }
+        }
+
+        private async void btnBackup_ClickAsync(object sender, EventArgs e)
+        {
+            try
+            {
+                using (SaveFileDialog caixaDeDialogo = new SaveFileDialog())
+                {
+                    caixaDeDialogo.Title = "Salvar Backup da Biblioteca";
+                    caixaDeDialogo.FileName = $"Backup_OdolfoBiblioteca_{DateTime.Now.ToString("dd_MM_yyyy_HHmm")}.bak";
+                    caixaDeDialogo.Filter = "Backup do SQL Server (*.bak)|*.bak";
+
+                    if (caixaDeDialogo.ShowDialog() == DialogResult.OK)
+                    {
+                        // A sua string de conexão exata!
+                        string connectionString = ConfigurationManager.ConnectionStrings["BibliotecaDB"]?.ConnectionString; ;
+
+                        string caminhoEscolhido = caixaDeDialogo.FileName;
+
+                        // O comando oficial do SQL Server para gerar o backup
+                        string comandoSql = $@"BACKUP DATABASE [OdolfoBiblioteca] TO DISK = '{caminhoEscolhido}' WITH FORMAT, MEDIANAME = 'BackupBiblioteca', NAME = 'Backup Completo';";
+
+                        using (SqlConnection conexao = new SqlConnection(connectionString))
+                        {
+                            using (SqlCommand comando = new SqlCommand(comandoSql, conexao))
+                            {
+                                await conexao.OpenAsync();
+                                await comando.ExecuteNonQueryAsync();
+                            }
+                        }
+
+                        MessageBox.Show("Backup realizado com sucesso e salvo no seu Pen Drive!", "Backup Concluído", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ocorreu um erro ao tentar fazer o backup.\n\nDetalhe técnico: {ex.Message}", "Falha no Backup", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async void btnRestaurarBackup_ClickAsync(object sender, EventArgs e)
+        {
+            // 1. Confirmação de segurança dupla (nunca é demais quando se trata de apagar o banco atual)
+            var confirmacao = MessageBox.Show(
+                "ATENÇÃO: Restaurar um backup vai apagar todos os dados atuais e voltar o sistema para a data do arquivo escolhido.\n\nTem certeza que deseja continuar?",
+                "Aviso Crítico",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
+
+            if (confirmacao != DialogResult.Yes) return;
+
+            try
+            {
+                using (OpenFileDialog caixaDeBusca = new OpenFileDialog())
+                {
+                    caixaDeBusca.Title = "Selecione o arquivo de Backup";
+                    caixaDeBusca.Filter = "Backup do SQL Server (*.bak)|*.bak";
+
+                    if (caixaDeBusca.ShowDialog() == DialogResult.OK)
+                    {
+                        string caminhoBackup = caixaDeBusca.FileName;
+
+                        // O TRUQUE: Mudamos a conexão para o banco "master" em vez do "OdolfoBiblioteca"
+                        string connectionStringMaster = @"Server=.\SQLEXPRESS;Database=master;Trusted_Connection=True;TrustServerCertificate=True;";
+
+                        // O Script SQL que expulsa todo mundo, restaura e religa
+                        string comandoSql = $@"
+                    -- 1. Coloca o banco em modo de usuário único (derruba as conexões ativas)
+                    ALTER DATABASE [OdolfoBiblioteca] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+                    
+                    -- 2. Restaura o backup por cima (REPLACE)
+                    RESTORE DATABASE [OdolfoBiblioteca] FROM DISK = '{caminhoBackup}' WITH REPLACE;
+                    
+                    -- 3. Devolve o banco ao estado normal para múltiplos usuários
+                    ALTER DATABASE [OdolfoBiblioteca] SET MULTI_USER;";
+
+                        using (SqlConnection conexao = new SqlConnection(connectionStringMaster))
+                        {
+                            using (SqlCommand comando = new SqlCommand(comandoSql, conexao))
+                            {
+                                await conexao.OpenAsync();
+                                await comando.ExecuteNonQueryAsync();
+                            }
+                        }
+
+                        MessageBox.Show("Restauração concluída com sucesso! O sistema foi revertido para a versão do backup.", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                        // Reinicia a aplicação para recarregar todos os dados limpos
+                        Application.Restart();
+                        Environment.Exit(0);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Falha ao tentar restaurar o banco de dados.\n\nDetalhe técnico: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void históricoDeEmpréstimosToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (dgvLivros.SelectedRows.Count > 0)
+            {
+                // 1. Captura o ID e o Título do livro selecionado na linha da grade
+                int idLivro = Convert.ToInt32(dgvLivros.SelectedRows[0].Cells["Id"].Value);
+                string tituloLivro = dgvLivros.SelectedRows[0].Cells["Titulo"].Value.ToString();
+
+                // 2. Instancia a tela de histórico injetando os dados do livro
+                FormHistoricoLivro telaHistorico = new FormHistoricoLivro(idLivro, tituloLivro);
+
+                // 3. Exibe a janela de forma centralizada
+                telaHistorico.ShowDialog();
+            }
+        }
+
+        private void btnEscolherCapa_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog caixaBusca = new OpenFileDialog())
+            {
+                caixaBusca.Title = "Selecione a Capa do Livro";
+                // Filtra para mostrar apenas imagens
+                caixaBusca.Filter = "Arquivos de Imagem|*.jpg;*.jpeg;*.png";
+
+                if (caixaBusca.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        // 1. Define a pasta 'CapasLivros' na raiz do seu executável
+                        string pastaCapas = Path.Combine(Application.StartupPath, "CapasLivros");
+
+                        // Se a pasta não existir ainda, o C# cria ela na hora
+                        if (!Directory.Exists(pastaCapas))
+                        {
+                            Directory.CreateDirectory(pastaCapas);
+                        }
+
+                        // 2. Cria um nome ÚNICO para a imagem (Evita que um livro de Matemática apague a capa de outro de Matemática)
+                        // Usamos um Guid (código aleatório) + a extensão original do arquivo
+                        string extensao = Path.GetExtension(caixaBusca.FileName);
+                        _nomeArquivoCapa = Guid.NewGuid().ToString() + extensao;
+
+                        // 3. Monta o caminho final onde a foto vai morar
+                        string caminhoFinal = Path.Combine(pastaCapas, _nomeArquivoCapa);
+
+                        // 4. Faz a cópia da imagem do pendrive/computador para a pasta do sistema
+                        File.Copy(caixaBusca.FileName, caminhoFinal, true);
+
+                        // 5. Mostra a imagem na tela para o usuário ver que deu certo!
+                        pbCapa.ImageLocation = caminhoFinal;
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Erro ao processar a imagem: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+
+        private void btnLimparCapa_Click(object sender, EventArgs e)
+        {
+            pbCapa.Image = null;
+            _nomeArquivoCapa = "";
+        }
+
+        private void btnVersao_Click(object sender, EventArgs e)
+        {
+            FormVersao telaVersao = new FormVersao();
+            telaVersao.ShowDialog();
+        }
+
+        private void btnMultas_Click(object sender, EventArgs e)
+        {
+            FrmRelatorioAtrasos telaAtrasos = new FrmRelatorioAtrasos();
+
+            // 2. A MÁGICA: Usa ShowDialog em vez de Show!
+            // Isso faz a tela principal "congelar" e esperar a tela de atrasos ser fechada.
+            telaAtrasos.ShowDialog();
+
+            // 3. ATUALIZAÇÃO: Esta linha só vai ser executada no exato milissegundo 
+            // em que o bibliotecário fechar a tela de atrasos no "X"!
+
+            // Chame aqui o seu método que recarrega a grade da tela principal
+            CarregarGridEmprestimosAtivosAsync();
         }
     }
 }

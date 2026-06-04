@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CadastroUsuarios));
             txt_turma = new TextBox();
@@ -45,9 +46,13 @@
             txt_telefone = new TextBox();
             buscar = new Label();
             txtBuscaUsuarios = new TextBox();
+            menuUsuarios = new ContextMenuStrip(components);
+            verLivrosEmprestadosToolStripMenuItem = new ToolStripMenuItem();
+            multasToolStripMenuItem = new ToolStripMenuItem();
             panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvUsuarios).BeginInit();
             gbcadastro.SuspendLayout();
+            menuUsuarios.SuspendLayout();
             SuspendLayout();
             // 
             // txt_turma
@@ -181,6 +186,7 @@
             dgvUsuarios.Size = new Size(580, 633);
             dgvUsuarios.TabIndex = 11;
             dgvUsuarios.CellDoubleClick += dgvUsuarios_CellDoubleClick;
+            dgvUsuarios.CellMouseDown += dgvUsuarios_CellMouseDown;
             dgvUsuarios.ColumnHeaderMouseClick += dgvUsuarios_ColumnHeaderMouseClick;
             // 
             // label1
@@ -243,6 +249,28 @@
             txtBuscaUsuarios.TabIndex = 15;
             txtBuscaUsuarios.TextChanged += txtBuscaUsuarios_TextChangedAsync;
             // 
+            // menuUsuarios
+            // 
+            menuUsuarios.Items.AddRange(new ToolStripItem[] { verLivrosEmprestadosToolStripMenuItem, multasToolStripMenuItem });
+            menuUsuarios.Name = "menuUsuarios";
+            menuUsuarios.Size = new Size(181, 70);
+            // 
+            // verLivrosEmprestadosToolStripMenuItem
+            // 
+            verLivrosEmprestadosToolStripMenuItem.Image = (Image)resources.GetObject("verLivrosEmprestadosToolStripMenuItem.Image");
+            verLivrosEmprestadosToolStripMenuItem.Name = "verLivrosEmprestadosToolStripMenuItem";
+            verLivrosEmprestadosToolStripMenuItem.Size = new Size(180, 22);
+            verLivrosEmprestadosToolStripMenuItem.Text = "Livros Emprestados";
+            verLivrosEmprestadosToolStripMenuItem.Click += verLivrosEmprestadosToolStripMenuItem_Click;
+            // 
+            // multasToolStripMenuItem
+            // 
+            multasToolStripMenuItem.Image = (Image)resources.GetObject("multasToolStripMenuItem.Image");
+            multasToolStripMenuItem.Name = "multasToolStripMenuItem";
+            multasToolStripMenuItem.Size = new Size(180, 22);
+            multasToolStripMenuItem.Text = "Visualizar Multas";
+            multasToolStripMenuItem.Click += multasToolStripMenuItem_Click;
+            // 
             // CadastroUsuarios
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -268,6 +296,7 @@
             ((System.ComponentModel.ISupportInitialize)dgvUsuarios).EndInit();
             gbcadastro.ResumeLayout(false);
             gbcadastro.PerformLayout();
+            menuUsuarios.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -289,5 +318,8 @@
         private TextBox txt_telefone;
         private Label buscar;
         private TextBox txtBuscaUsuarios;
+        private ContextMenuStrip menuUsuarios;
+        private ToolStripMenuItem verLivrosEmprestadosToolStripMenuItem;
+        private ToolStripMenuItem multasToolStripMenuItem;
     }
 }

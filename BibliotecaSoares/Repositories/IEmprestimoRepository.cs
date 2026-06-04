@@ -1,9 +1,10 @@
-﻿using System;
+﻿using BibliotecaSoares.Models;
+using BibliotecaSoares.Models.DTO;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using BibliotecaSoares.Models;
-using BibliotecaSoares.Models.DTO;
 
 namespace BibliotecaSoares.Repositories
 {
@@ -18,5 +19,7 @@ namespace BibliotecaSoares.Repositories
         // Traz a lista de empréstimos que ainda NÃO foram devolvidos (para a sua grade)
         Task<List<Emprestimo>> ObterTodosAtivosAsync();
         Task<List<RelatorioLivrosPorAlunoDTO>> ObterRelatorioQuantidadePorAlunoAsync();
+        Task<Emprestimo> ObterPorIdAsync(int id);
+        Task AtualizarAsync(Emprestimo emprestimo);
     }
 }

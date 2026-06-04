@@ -45,6 +45,23 @@ namespace BibliotecaSoares
                     lbQuantidade.Text = livro.QuantidadeTotal.ToString();
                     lblIdioma.Text = livro.Idioma;
 
+                    // 1. Limpa a imagem anterior por precaução
+                    pbVisualizarCapa.ImageLocation = null;
+
+                    // 2. Verifica se o livro tem um nome de capa cadastrado no banco
+                    if (!string.IsNullOrEmpty(livro.CaminhoCapa))
+                    {
+                        // 3. Monta o caminho completo juntando a pasta raiz + "CapasLivros" + o nome do arquivo
+                        string pastaCapas = System.IO.Path.Combine(Application.StartupPath, "CapasLivros");
+                        string caminhoCompleto = System.IO.Path.Combine(pastaCapas, livro.CaminhoCapa);
+
+                        // 4. Se a foto realmente estiver lá na pasta, exibe na tela
+                        if (System.IO.File.Exists(caminhoCompleto))
+                        {
+                            pbVisualizarCapa.ImageLocation = caminhoCompleto;
+                        }
+                    }
+
                     // Se você tiver outros campos como Editora, Ano, Gênero, coloque aqui!
                 }
             }

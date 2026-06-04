@@ -45,17 +45,17 @@
             lbQuantidade = new Label();
             btnFechar = new Button();
             label4 = new Label();
-            pictureBox1 = new PictureBox();
+            pbVisualizarCapa = new PictureBox();
             label6 = new Label();
             lblIdioma = new Label();
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pbVisualizarCapa).BeginInit();
             SuspendLayout();
             // 
             // label1
             // 
             label1.AutoSize = true;
             label1.Font = new Font("JetBrains Mono NL ExtraBold", 9.75F, FontStyle.Bold);
-            label1.Location = new Point(12, 50);
+            label1.Location = new Point(318, 37);
             label1.Name = "label1";
             label1.Size = new Size(128, 17);
             label1.TabIndex = 0;
@@ -65,7 +65,7 @@
             // 
             lbCodigo.AutoSize = true;
             lbCodigo.Font = new Font("JetBrains Mono", 8.999999F);
-            lbCodigo.Location = new Point(12, 73);
+            lbCodigo.Location = new Point(318, 60);
             lbCodigo.Name = "lbCodigo";
             lbCodigo.Size = new Size(35, 16);
             lbCodigo.TabIndex = 0;
@@ -75,7 +75,7 @@
             // 
             label2.AutoSize = true;
             label2.Font = new Font("JetBrains Mono NL ExtraBold", 9.75F, FontStyle.Bold);
-            label2.Location = new Point(12, 99);
+            label2.Location = new Point(318, 86);
             label2.Name = "label2";
             label2.Size = new Size(56, 17);
             label2.TabIndex = 0;
@@ -85,7 +85,7 @@
             // 
             lbTitulo.AutoSize = true;
             lbTitulo.Font = new Font("JetBrains Mono", 8.999999F);
-            lbTitulo.Location = new Point(12, 124);
+            lbTitulo.Location = new Point(318, 111);
             lbTitulo.Name = "lbTitulo";
             lbTitulo.Size = new Size(35, 16);
             lbTitulo.TabIndex = 0;
@@ -95,7 +95,7 @@
             // 
             label3.AutoSize = true;
             label3.Font = new Font("JetBrains Mono NL ExtraBold", 9.75F, FontStyle.Bold);
-            label3.Location = new Point(12, 151);
+            label3.Location = new Point(318, 138);
             label3.Name = "label3";
             label3.Size = new Size(48, 17);
             label3.TabIndex = 0;
@@ -105,7 +105,7 @@
             // 
             lbAutor.AutoSize = true;
             lbAutor.Font = new Font("JetBrains Mono", 8.999999F);
-            lbAutor.Location = new Point(12, 176);
+            lbAutor.Location = new Point(318, 163);
             lbAutor.Name = "lbAutor";
             lbAutor.Size = new Size(35, 16);
             lbAutor.TabIndex = 0;
@@ -115,7 +115,7 @@
             // 
             label5.AutoSize = true;
             label5.Font = new Font("JetBrains Mono NL ExtraBold", 9.75F, FontStyle.Bold);
-            label5.Location = new Point(12, 199);
+            label5.Location = new Point(318, 186);
             label5.Name = "label5";
             label5.Size = new Size(64, 17);
             label5.TabIndex = 0;
@@ -125,7 +125,7 @@
             // 
             lbEditora.AutoSize = true;
             lbEditora.Font = new Font("JetBrains Mono", 8.999999F);
-            lbEditora.Location = new Point(12, 224);
+            lbEditora.Location = new Point(318, 211);
             lbEditora.Name = "lbEditora";
             lbEditora.Size = new Size(35, 16);
             lbEditora.TabIndex = 0;
@@ -135,7 +135,7 @@
             // 
             label7.AutoSize = true;
             label7.Font = new Font("JetBrains Mono NL ExtraBold", 9.75F, FontStyle.Bold);
-            label7.Location = new Point(12, 250);
+            label7.Location = new Point(318, 237);
             label7.Name = "label7";
             label7.Size = new Size(32, 17);
             label7.TabIndex = 0;
@@ -145,7 +145,7 @@
             // 
             lbAno.AutoSize = true;
             lbAno.Font = new Font("JetBrains Mono", 8.999999F);
-            lbAno.Location = new Point(12, 275);
+            lbAno.Location = new Point(318, 262);
             lbAno.Name = "lbAno";
             lbAno.Size = new Size(35, 16);
             lbAno.TabIndex = 0;
@@ -155,7 +155,7 @@
             // 
             label9.AutoSize = true;
             label9.Font = new Font("JetBrains Mono NL ExtraBold", 9.75F, FontStyle.Bold);
-            label9.Location = new Point(12, 303);
+            label9.Location = new Point(318, 290);
             label9.Name = "label9";
             label9.Size = new Size(56, 17);
             label9.TabIndex = 0;
@@ -165,7 +165,7 @@
             // 
             lbGenero.AutoSize = true;
             lbGenero.Font = new Font("JetBrains Mono", 8.999999F);
-            lbGenero.Location = new Point(12, 328);
+            lbGenero.Location = new Point(318, 315);
             lbGenero.Name = "lbGenero";
             lbGenero.Size = new Size(35, 16);
             lbGenero.TabIndex = 0;
@@ -175,7 +175,7 @@
             // 
             label11.AutoSize = true;
             label11.Font = new Font("JetBrains Mono NL ExtraBold", 9.75F, FontStyle.Bold);
-            label11.Location = new Point(12, 357);
+            label11.Location = new Point(318, 344);
             label11.Name = "label11";
             label11.Size = new Size(88, 17);
             label11.TabIndex = 0;
@@ -185,7 +185,7 @@
             // 
             lbQuantidade.AutoSize = true;
             lbQuantidade.Font = new Font("JetBrains Mono", 8.999999F);
-            lbQuantidade.Location = new Point(12, 382);
+            lbQuantidade.Location = new Point(318, 369);
             lbQuantidade.Name = "lbQuantidade";
             lbQuantidade.Size = new Size(35, 16);
             lbQuantidade.TabIndex = 0;
@@ -196,7 +196,7 @@
             btnFechar.BackColor = Color.FromArgb(0, 86, 179);
             btnFechar.Font = new Font("JetBrains Mono NL", 10F, FontStyle.Bold | FontStyle.Italic);
             btnFechar.ForeColor = Color.White;
-            btnFechar.Location = new Point(248, 511);
+            btnFechar.Location = new Point(348, 455);
             btnFechar.Margin = new Padding(3, 2, 3, 2);
             btnFechar.Name = "btnFechar";
             btnFechar.Size = new Size(104, 50);
@@ -209,27 +209,29 @@
             // 
             label4.AutoSize = true;
             label4.Font = new Font("JetBrains Mono NL SemiBold", 14F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label4.Location = new Point(206, 10);
+            label4.Location = new Point(306, 3);
             label4.Name = "label4";
             label4.Size = new Size(188, 25);
             label4.TabIndex = 0;
             label4.Text = "Visualizar Livro";
             // 
-            // pictureBox1
+            // pbVisualizarCapa
             // 
-            pictureBox1.Image = (Image)resources.GetObject("pictureBox1.Image");
-            pictureBox1.Location = new Point(308, 199);
-            pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(342, 307);
-            pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
-            pictureBox1.TabIndex = 3;
-            pictureBox1.TabStop = false;
+            pbVisualizarCapa.BorderStyle = BorderStyle.FixedSingle;
+            pbVisualizarCapa.ErrorImage = null;
+            pbVisualizarCapa.InitialImage = null;
+            pbVisualizarCapa.Location = new Point(12, 37);
+            pbVisualizarCapa.Name = "pbVisualizarCapa";
+            pbVisualizarCapa.Size = new Size(300, 400);
+            pbVisualizarCapa.SizeMode = PictureBoxSizeMode.StretchImage;
+            pbVisualizarCapa.TabIndex = 3;
+            pbVisualizarCapa.TabStop = false;
             // 
             // label6
             // 
             label6.AutoSize = true;
             label6.Font = new Font("JetBrains Mono NL ExtraBold", 9.75F, FontStyle.Bold);
-            label6.Location = new Point(12, 409);
+            label6.Location = new Point(318, 396);
             label6.Name = "label6";
             label6.Size = new Size(56, 17);
             label6.TabIndex = 0;
@@ -239,7 +241,7 @@
             // 
             lblIdioma.AutoSize = true;
             lblIdioma.Font = new Font("JetBrains Mono", 8.999999F);
-            lblIdioma.Location = new Point(12, 434);
+            lblIdioma.Location = new Point(318, 421);
             lblIdioma.Name = "lblIdioma";
             lblIdioma.Size = new Size(35, 16);
             lblIdioma.TabIndex = 0;
@@ -251,8 +253,8 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Linen;
             CancelButton = btnFechar;
-            ClientSize = new Size(584, 572);
-            Controls.Add(pictureBox1);
+            ClientSize = new Size(784, 511);
+            Controls.Add(pbVisualizarCapa);
             Controls.Add(btnFechar);
             Controls.Add(lblIdioma);
             Controls.Add(lbQuantidade);
@@ -276,7 +278,7 @@
             MinimizeBox = false;
             Name = "FrmVisualizarLivros";
             Text = "Visualizar Livro";
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pbVisualizarCapa).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -299,7 +301,7 @@
         private Label lbQuantidade;
         private Button btnFechar;
         private Label label4;
-        private PictureBox pictureBox1;
+        private PictureBox pbVisualizarCapa;
         private Label label6;
         private Label lblIdioma;
     }

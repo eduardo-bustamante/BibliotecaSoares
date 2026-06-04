@@ -34,6 +34,10 @@ namespace BibliotecaSoares
             }
 
             // Abre o formulário principal normalmente
+            using (var splash = new FormSplash())
+            {
+                splash.ShowDialog();
+            }
             Application.Run(new CadastroLivros());
         }
     }

@@ -4,6 +4,7 @@ using BibliotecaSoares.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BibliotecaSoares.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260527011007_AdicionandoDataDevolucaoReal")]
+    partial class AdicionandoDataDevolucaoReal
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,9 +51,6 @@ namespace BibliotecaSoares.Migrations
                     b.Property<int>("UsuarioId")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("ValorMultaPaga")
-                        .HasColumnType("decimal(18,2)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("LivroId");
@@ -73,9 +73,6 @@ namespace BibliotecaSoares.Migrations
 
                     b.Property<string>("Autor")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CaminhoCapa")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Editora")

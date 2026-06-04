@@ -29,14 +29,17 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle5 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle6 = new DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CadastroLivros));
-            DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle7 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle8 = new DataGridViewCellStyle();
             dgvLivros = new DataGridView();
             label1 = new Label();
             panel1 = new Panel();
+            btnLimparCapa = new Button();
+            btnEscolherCapa = new Button();
+            pbCapa = new PictureBox();
             nud_quantidade = new NumericUpDown();
             btnVizualizar = new Button();
             btn_cadastroUsuario = new Button();
@@ -77,8 +80,16 @@
             editarToolStripMenuItem = new ToolStripMenuItem();
             excluirToolStripMenuItem = new ToolStripMenuItem();
             visualizarToolStripMenuItem = new ToolStripMenuItem();
+            históricoDeEmpréstimosToolStripMenuItem = new ToolStripMenuItem();
+            btnBackup = new Button();
+            btnRestaurarBackup = new Button();
+            btnVersao = new Button();
+            label13 = new Label();
+            toolTip1 = new ToolTip(components);
+            btnMultas = new Button();
             ((System.ComponentModel.ISupportInitialize)dgvLivros).BeginInit();
             panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pbCapa).BeginInit();
             ((System.ComponentModel.ISupportInitialize)nud_quantidade).BeginInit();
             ((System.ComponentModel.ISupportInitialize)nud_ano).BeginInit();
             panel2.SuspendLayout();
@@ -92,19 +103,19 @@
             // 
             dgvLivros.AllowUserToDeleteRows = false;
             dgvLivros.AllowUserToOrderColumns = true;
-            dataGridViewCellStyle1.Font = new Font("JetBrains Mono NL", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            dgvLivros.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle5.Font = new Font("JetBrains Mono NL", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            dgvLivros.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle5;
             dgvLivros.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dgvLivros.BackgroundColor = Color.WhiteSmoke;
             dgvLivros.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle2.BackColor = SystemColors.Window;
-            dataGridViewCellStyle2.Font = new Font("JetBrains Mono", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            dataGridViewCellStyle2.ForeColor = SystemColors.ControlText;
-            dataGridViewCellStyle2.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle2.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = DataGridViewTriState.False;
-            dgvLivros.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle6.BackColor = SystemColors.Window;
+            dataGridViewCellStyle6.Font = new Font("JetBrains Mono", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            dataGridViewCellStyle6.ForeColor = SystemColors.ControlText;
+            dataGridViewCellStyle6.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle6.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle6.WrapMode = DataGridViewTriState.False;
+            dgvLivros.DefaultCellStyle = dataGridViewCellStyle6;
             dgvLivros.GridColor = SystemColors.ScrollBar;
             dgvLivros.Location = new Point(437, 66);
             dgvLivros.Margin = new Padding(3, 2, 3, 2);
@@ -132,6 +143,9 @@
             // 
             // panel1
             // 
+            panel1.Controls.Add(btnLimparCapa);
+            panel1.Controls.Add(btnEscolherCapa);
+            panel1.Controls.Add(pbCapa);
             panel1.Controls.Add(nud_quantidade);
             panel1.Controls.Add(btnVizualizar);
             panel1.Controls.Add(btn_cadastroUsuario);
@@ -156,14 +170,49 @@
             panel1.Size = new Size(405, 330);
             panel1.TabIndex = 2;
             // 
+            // btnLimparCapa
+            // 
+            btnLimparCapa.BackColor = Color.White;
+            btnLimparCapa.FlatStyle = FlatStyle.Flat;
+            btnLimparCapa.Image = (Image)resources.GetObject("btnLimparCapa.Image");
+            btnLimparCapa.Location = new Point(368, 211);
+            btnLimparCapa.Name = "btnLimparCapa";
+            btnLimparCapa.Size = new Size(34, 32);
+            btnLimparCapa.TabIndex = 14;
+            toolTip1.SetToolTip(btnLimparCapa, "Limpar capa");
+            btnLimparCapa.UseVisualStyleBackColor = false;
+            btnLimparCapa.Click += btnLimparCapa_Click;
+            // 
+            // btnEscolherCapa
+            // 
+            btnEscolherCapa.FlatStyle = FlatStyle.Popup;
+            btnEscolherCapa.Image = (Image)resources.GetObject("btnEscolherCapa.Image");
+            btnEscolherCapa.Location = new Point(368, 173);
+            btnEscolherCapa.Name = "btnEscolherCapa";
+            btnEscolherCapa.Size = new Size(34, 32);
+            btnEscolherCapa.TabIndex = 14;
+            toolTip1.SetToolTip(btnEscolherCapa, "Buscar imagem da capa");
+            btnEscolherCapa.UseVisualStyleBackColor = true;
+            btnEscolherCapa.Click += btnEscolherCapa_Click;
+            // 
+            // pbCapa
+            // 
+            pbCapa.BorderStyle = BorderStyle.FixedSingle;
+            pbCapa.Location = new Point(254, 163);
+            pbCapa.Name = "pbCapa";
+            pbCapa.Size = new Size(108, 154);
+            pbCapa.SizeMode = PictureBoxSizeMode.Zoom;
+            pbCapa.TabIndex = 13;
+            pbCapa.TabStop = false;
+            // 
             // nud_quantidade
             // 
             nud_quantidade.BackColor = SystemColors.Menu;
             nud_quantidade.Font = new Font("JetBrains Mono NL", 10F);
-            nud_quantidade.Location = new Point(269, 239);
+            nud_quantidade.Location = new Point(149, 239);
             nud_quantidade.Maximum = new decimal(new int[] { 2000, 0, 0, 0 });
             nud_quantidade.Name = "nud_quantidade";
-            nud_quantidade.Size = new Size(133, 25);
+            nud_quantidade.Size = new Size(88, 25);
             nud_quantidade.TabIndex = 6;
             nud_quantidade.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
@@ -174,14 +223,14 @@
             btnVizualizar.Font = new Font("JetBrains Mono SemiBold", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
             btnVizualizar.ForeColor = SystemColors.WindowText;
             btnVizualizar.Image = (Image)resources.GetObject("btnVizualizar.Image");
-            btnVizualizar.ImageAlign = ContentAlignment.MiddleLeft;
-            btnVizualizar.Location = new Point(269, 270);
+            btnVizualizar.ImageAlign = ContentAlignment.TopCenter;
+            btnVizualizar.Location = new Point(173, 270);
             btnVizualizar.Name = "btnVizualizar";
             btnVizualizar.Padding = new Padding(4, 3, 4, 3);
-            btnVizualizar.Size = new Size(133, 47);
+            btnVizualizar.Size = new Size(64, 47);
             btnVizualizar.TabIndex = 11;
-            btnVizualizar.Text = "Visualizar";
-            btnVizualizar.TextImageRelation = TextImageRelation.ImageBeforeText;
+            btnVizualizar.TextAlign = ContentAlignment.BottomCenter;
+            toolTip1.SetToolTip(btnVizualizar, "Visualizar livro");
             btnVizualizar.UseVisualStyleBackColor = false;
             btnVizualizar.Click += btnVizualizar_Click;
             // 
@@ -203,11 +252,11 @@
             // 
             nud_ano.BackColor = SystemColors.Menu;
             nud_ano.Font = new Font("JetBrains Mono NL", 10F);
-            nud_ano.Location = new Point(269, 186);
+            nud_ano.Location = new Point(149, 186);
             nud_ano.Maximum = new decimal(new int[] { 2100, 0, 0, 0 });
             nud_ano.Minimum = new decimal(new int[] { 1700, 0, 0, 0 });
             nud_ano.Name = "nud_ano";
-            nud_ano.Size = new Size(133, 25);
+            nud_ano.Size = new Size(88, 25);
             nud_ano.TabIndex = 4;
             nud_ano.Value = new decimal(new int[] { 2026, 0, 0, 0 });
             // 
@@ -220,7 +269,7 @@
             cb_idioma.Location = new Point(6, 292);
             cb_idioma.Margin = new Padding(3, 2, 3, 2);
             cb_idioma.Name = "cb_idioma";
-            cb_idioma.Size = new Size(247, 25);
+            cb_idioma.Size = new Size(128, 25);
             cb_idioma.TabIndex = 7;
             // 
             // txt_genero
@@ -230,7 +279,7 @@
             txt_genero.Location = new Point(6, 239);
             txt_genero.Margin = new Padding(3, 2, 3, 2);
             txt_genero.Name = "txt_genero";
-            txt_genero.Size = new Size(247, 25);
+            txt_genero.Size = new Size(128, 25);
             txt_genero.TabIndex = 5;
             // 
             // txt_editora
@@ -240,7 +289,7 @@
             txt_editora.Location = new Point(6, 186);
             txt_editora.Margin = new Padding(3, 2, 3, 2);
             txt_editora.Name = "txt_editora";
-            txt_editora.Size = new Size(247, 25);
+            txt_editora.Size = new Size(128, 25);
             txt_editora.TabIndex = 3;
             // 
             // label7
@@ -248,7 +297,7 @@
             label7.AutoSize = true;
             label7.Font = new Font("JetBrains Mono NL SemiBold", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label7.ForeColor = Color.FromArgb(51, 51, 51);
-            label7.Location = new Point(269, 216);
+            label7.Location = new Point(149, 216);
             label7.Name = "label7";
             label7.Size = new Size(88, 18);
             label7.TabIndex = 0;
@@ -302,7 +351,7 @@
             label5.AutoSize = true;
             label5.Font = new Font("JetBrains Mono NL SemiBold", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label5.ForeColor = Color.FromArgb(51, 51, 51);
-            label5.Location = new Point(269, 163);
+            label5.Location = new Point(149, 163);
             label5.Name = "label5";
             label5.Size = new Size(32, 18);
             label5.TabIndex = 0;
@@ -444,10 +493,10 @@
             btnDevolver.BackColor = Color.FromArgb(0, 86, 179);
             btnDevolver.Font = new Font("JetBrains Mono NL", 12F, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point, 0);
             btnDevolver.ForeColor = Color.White;
-            btnDevolver.Location = new Point(32, 146);
+            btnDevolver.Location = new Point(32, 109);
             btnDevolver.Margin = new Padding(3, 2, 3, 2);
             btnDevolver.Name = "btnDevolver";
-            btnDevolver.Size = new Size(160, 100);
+            btnDevolver.Size = new Size(160, 70);
             btnDevolver.TabIndex = 2;
             btnDevolver.Text = "Devolver";
             btnDevolver.UseVisualStyleBackColor = false;
@@ -461,7 +510,7 @@
             btn_emprestar.Location = new Point(32, 27);
             btn_emprestar.Margin = new Padding(3, 2, 3, 2);
             btn_emprestar.Name = "btn_emprestar";
-            btn_emprestar.Size = new Size(160, 100);
+            btn_emprestar.Size = new Size(160, 70);
             btn_emprestar.TabIndex = 1;
             btn_emprestar.Text = "Emprestar";
             btn_emprestar.UseVisualStyleBackColor = false;
@@ -471,19 +520,19 @@
             // 
             dgvEmprestimosAtivos.AllowUserToDeleteRows = false;
             dgvEmprestimosAtivos.AllowUserToOrderColumns = true;
-            dataGridViewCellStyle3.Font = new Font("JetBrains Mono NL", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            dgvEmprestimosAtivos.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle7.Font = new Font("JetBrains Mono NL", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            dgvEmprestimosAtivos.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle7;
             dgvEmprestimosAtivos.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dgvEmprestimosAtivos.BackgroundColor = Color.WhiteSmoke;
             dgvEmprestimosAtivos.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle4.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle4.BackColor = SystemColors.Window;
-            dataGridViewCellStyle4.Font = new Font("JetBrains Mono", 9F);
-            dataGridViewCellStyle4.ForeColor = SystemColors.ControlText;
-            dataGridViewCellStyle4.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle4.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle4.WrapMode = DataGridViewTriState.False;
-            dgvEmprestimosAtivos.DefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle8.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle8.BackColor = SystemColors.Window;
+            dataGridViewCellStyle8.Font = new Font("JetBrains Mono", 9F);
+            dataGridViewCellStyle8.ForeColor = SystemColors.ControlText;
+            dataGridViewCellStyle8.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle8.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle8.WrapMode = DataGridViewTriState.False;
+            dgvEmprestimosAtivos.DefaultCellStyle = dataGridViewCellStyle8;
             dgvEmprestimosAtivos.GridColor = SystemColors.ScrollBar;
             dgvEmprestimosAtivos.Location = new Point(207, 10);
             dgvEmprestimosAtivos.Margin = new Padding(3, 2, 3, 2);
@@ -501,6 +550,7 @@
             // 
             groupBox1.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             groupBox1.BackColor = Color.White;
+            groupBox1.Controls.Add(btnMultas);
             groupBox1.Controls.Add(btnDevolver);
             groupBox1.Controls.Add(dgvEmprestimosAtivos);
             groupBox1.Controls.Add(btn_emprestar);
@@ -517,10 +567,10 @@
             btnRelatorio.BackColor = Color.FromArgb(0, 86, 179);
             btnRelatorio.Font = new Font("JetBrains Mono NL", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             btnRelatorio.ForeColor = Color.White;
-            btnRelatorio.Location = new Point(23, 27);
+            btnRelatorio.Location = new Point(8, 27);
             btnRelatorio.Margin = new Padding(3, 2, 3, 2);
             btnRelatorio.Name = "btnRelatorio";
-            btnRelatorio.Size = new Size(160, 100);
+            btnRelatorio.Size = new Size(119, 69);
             btnRelatorio.TabIndex = 3;
             btnRelatorio.Text = "Relatórios";
             btnRelatorio.UseVisualStyleBackColor = false;
@@ -538,7 +588,7 @@
             groupBox2.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             groupBox2.Location = new Point(12, 449);
             groupBox2.Name = "groupBox2";
-            groupBox2.Size = new Size(212, 268);
+            groupBox2.Size = new Size(212, 149);
             groupBox2.TabIndex = 6;
             groupBox2.TabStop = false;
             groupBox2.Text = "Relatórios";
@@ -548,7 +598,7 @@
             lblTotalExemplares.AutoSize = true;
             lblTotalExemplares.Font = new Font("JetBrains Mono NL SemiBold", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblTotalExemplares.ForeColor = Color.FromArgb(51, 51, 51);
-            lblTotalExemplares.Location = new Point(111, 174);
+            lblTotalExemplares.Location = new Point(113, 119);
             lblTotalExemplares.Name = "lblTotalExemplares";
             lblTotalExemplares.Size = new Size(16, 18);
             lblTotalExemplares.TabIndex = 0;
@@ -559,7 +609,7 @@
             lblTotalTitulos.AutoSize = true;
             lblTotalTitulos.Font = new Font("JetBrains Mono NL SemiBold", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblTotalTitulos.ForeColor = Color.FromArgb(51, 51, 51);
-            lblTotalTitulos.Location = new Point(167, 153);
+            lblTotalTitulos.Location = new Point(169, 98);
             lblTotalTitulos.Name = "lblTotalTitulos";
             lblTotalTitulos.Size = new Size(16, 18);
             lblTotalTitulos.TabIndex = 0;
@@ -570,7 +620,7 @@
             label11.AutoSize = true;
             label11.Font = new Font("JetBrains Mono NL SemiBold", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label11.ForeColor = Color.FromArgb(51, 51, 51);
-            label11.Location = new Point(8, 174);
+            label11.Location = new Point(10, 119);
             label11.Name = "label11";
             label11.Size = new Size(88, 18);
             label11.TabIndex = 0;
@@ -581,7 +631,7 @@
             label10.AutoSize = true;
             label10.Font = new Font("JetBrains Mono NL SemiBold", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label10.ForeColor = Color.FromArgb(51, 51, 51);
-            label10.Location = new Point(6, 153);
+            label10.Location = new Point(8, 98);
             label10.Name = "label10";
             label10.Size = new Size(160, 18);
             label10.TabIndex = 0;
@@ -595,7 +645,7 @@
             txtBuscarEmprestimos.Location = new Point(792, 422);
             txtBuscarEmprestimos.Margin = new Padding(3, 2, 3, 2);
             txtBuscarEmprestimos.Name = "txtBuscarEmprestimos";
-            txtBuscarEmprestimos.PlaceholderText = "Digite o nome do Aluno";
+            txtBuscarEmprestimos.PlaceholderText = "Digite o nome do Aluno ou Livro";
             txtBuscarEmprestimos.Size = new Size(377, 25);
             txtBuscarEmprestimos.TabIndex = 1;
             txtBuscarEmprestimos.TextChanged += txtBuscarEmprestimo_TextChanged;
@@ -614,15 +664,15 @@
             // menuLivros
             // 
             menuLivros.Font = new Font("JetBrains Mono", 8.999999F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            menuLivros.Items.AddRange(new ToolStripItem[] { editarToolStripMenuItem, excluirToolStripMenuItem, visualizarToolStripMenuItem });
+            menuLivros.Items.AddRange(new ToolStripItem[] { editarToolStripMenuItem, excluirToolStripMenuItem, visualizarToolStripMenuItem, históricoDeEmpréstimosToolStripMenuItem });
             menuLivros.Name = "contextMenuStrip1";
-            menuLivros.Size = new Size(145, 70);
+            menuLivros.Size = new Size(243, 92);
             // 
             // editarToolStripMenuItem
             // 
             editarToolStripMenuItem.Image = (Image)resources.GetObject("editarToolStripMenuItem.Image");
             editarToolStripMenuItem.Name = "editarToolStripMenuItem";
-            editarToolStripMenuItem.Size = new Size(144, 22);
+            editarToolStripMenuItem.Size = new Size(242, 22);
             editarToolStripMenuItem.Text = "Editar";
             editarToolStripMenuItem.Click += editarToolStripMenuItem_Click;
             // 
@@ -630,7 +680,7 @@
             // 
             excluirToolStripMenuItem.Image = (Image)resources.GetObject("excluirToolStripMenuItem.Image");
             excluirToolStripMenuItem.Name = "excluirToolStripMenuItem";
-            excluirToolStripMenuItem.Size = new Size(144, 22);
+            excluirToolStripMenuItem.Size = new Size(242, 22);
             excluirToolStripMenuItem.Text = "Excluir";
             excluirToolStripMenuItem.Click += excluirToolStripMenuItem_ClickAsync;
             // 
@@ -638,9 +688,73 @@
             // 
             visualizarToolStripMenuItem.Image = (Image)resources.GetObject("visualizarToolStripMenuItem.Image");
             visualizarToolStripMenuItem.Name = "visualizarToolStripMenuItem";
-            visualizarToolStripMenuItem.Size = new Size(144, 22);
+            visualizarToolStripMenuItem.Size = new Size(242, 22);
             visualizarToolStripMenuItem.Text = "Visualizar";
             visualizarToolStripMenuItem.Click += visualizarToolStripMenuItem_Click;
+            // 
+            // históricoDeEmpréstimosToolStripMenuItem
+            // 
+            históricoDeEmpréstimosToolStripMenuItem.Image = (Image)resources.GetObject("históricoDeEmpréstimosToolStripMenuItem.Image");
+            históricoDeEmpréstimosToolStripMenuItem.Name = "históricoDeEmpréstimosToolStripMenuItem";
+            históricoDeEmpréstimosToolStripMenuItem.Size = new Size(242, 22);
+            históricoDeEmpréstimosToolStripMenuItem.Text = "Histórico de Empréstimos";
+            históricoDeEmpréstimosToolStripMenuItem.Click += históricoDeEmpréstimosToolStripMenuItem_Click;
+            // 
+            // btnBackup
+            // 
+            btnBackup.Location = new Point(19, 662);
+            btnBackup.Name = "btnBackup";
+            btnBackup.Size = new Size(89, 47);
+            btnBackup.TabIndex = 7;
+            btnBackup.Text = "Backup";
+            btnBackup.UseVisualStyleBackColor = true;
+            btnBackup.Click += btnBackup_ClickAsync;
+            // 
+            // btnRestaurarBackup
+            // 
+            btnRestaurarBackup.Location = new Point(114, 662);
+            btnRestaurarBackup.Name = "btnRestaurarBackup";
+            btnRestaurarBackup.Size = new Size(89, 47);
+            btnRestaurarBackup.TabIndex = 7;
+            btnRestaurarBackup.Text = "Restaurar Backup";
+            btnRestaurarBackup.UseVisualStyleBackColor = true;
+            btnRestaurarBackup.Click += btnRestaurarBackup_ClickAsync;
+            // 
+            // btnVersao
+            // 
+            btnVersao.Image = (Image)resources.GetObject("btnVersao.Image");
+            btnVersao.Location = new Point(95, 604);
+            btnVersao.Name = "btnVersao";
+            btnVersao.Size = new Size(34, 32);
+            btnVersao.TabIndex = 15;
+            toolTip1.SetToolTip(btnVersao, "Limpar capa");
+            btnVersao.UseVisualStyleBackColor = true;
+            btnVersao.Click += btnVersao_Click;
+            // 
+            // label13
+            // 
+            label13.AutoSize = true;
+            label13.Font = new Font("JetBrains Mono NL SemiBold", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label13.ForeColor = Color.FromArgb(51, 51, 51);
+            label13.Location = new Point(52, 639);
+            label13.Name = "label13";
+            label13.Size = new Size(126, 16);
+            label13.TabIndex = 0;
+            label13.Text = "Versão do Sistema";
+            // 
+            // btnMultas
+            // 
+            btnMultas.BackColor = Color.FromArgb(0, 86, 179);
+            btnMultas.Font = new Font("JetBrains Mono NL", 12F, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point, 0);
+            btnMultas.ForeColor = Color.White;
+            btnMultas.Location = new Point(32, 191);
+            btnMultas.Margin = new Padding(3, 2, 3, 2);
+            btnMultas.Name = "btnMultas";
+            btnMultas.Size = new Size(160, 70);
+            btnMultas.TabIndex = 2;
+            btnMultas.Text = "Multas";
+            btnMultas.UseVisualStyleBackColor = false;
+            btnMultas.Click += btnMultas_Click;
             // 
             // CadastroLivros
             // 
@@ -648,6 +762,10 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             ClientSize = new Size(1181, 725);
+            Controls.Add(btnVersao);
+            Controls.Add(btnRestaurarBackup);
+            Controls.Add(btnBackup);
+            Controls.Add(label13);
             Controls.Add(groupBox2);
             Controls.Add(groupBox1);
             Controls.Add(panel2);
@@ -669,6 +787,7 @@
             ((System.ComponentModel.ISupportInitialize)dgvLivros).EndInit();
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pbCapa).EndInit();
             ((System.ComponentModel.ISupportInitialize)nud_quantidade).EndInit();
             ((System.ComponentModel.ISupportInitialize)nud_ano).EndInit();
             panel2.ResumeLayout(false);
@@ -726,5 +845,15 @@
         private ToolStripMenuItem editarToolStripMenuItem;
         private ToolStripMenuItem excluirToolStripMenuItem;
         private ToolStripMenuItem visualizarToolStripMenuItem;
+        private Button btnBackup;
+        private Button btnRestaurarBackup;
+        private ToolStripMenuItem históricoDeEmpréstimosToolStripMenuItem;
+        private PictureBox pbCapa;
+        private Button btnEscolherCapa;
+        private Button btnLimparCapa;
+        private Button btnVersao;
+        private Label label13;
+        private ToolTip toolTip1;
+        private Button btnMultas;
     }
 }
