@@ -5,7 +5,7 @@
 ![Windows Forms](https://img.shields.io/badge/Windows_Forms-0078D7?style=for-the-badge&logo=windows&logoColor=white)
 ![Entity Framework](https://img.shields.io/badge/Entity_Framework-5C2D91?style=for-the-badge&logo=.net&logoColor=white)
 
-Um sistema completo de gestão para bibliotecas escolares desenvolvido em C# com Windows Forms. A aplicação permite o controle eficiente do acervo literário, gestão de alunos e um robusto motor de empréstimos com cálculo automático de multas e inadimplência.
+Um sistema completo de gestão para biblioteca do Colegio Estadual Odolfo Soares, desenvolvido em C# com Windows Forms. A aplicação permite o controle eficiente do acervo literário, gestão de alunos e um robusto motor de empréstimos com cálculo automático de multas e inadimplência.
 
 ## ✨ Funcionalidades Principais
 
